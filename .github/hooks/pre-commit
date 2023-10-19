@@ -1,0 +1,22 @@
+#!/bin/sh
+
+/usr/local/bin/golangci-lint run
+if [ $? -ne 0 ]; then
+    echo "Linter failed, commit denied"
+    exit 1
+fi
+
+/usr/local/go/bin/go vet -vettool=/Users/korolevsky/go/bin/statictest ./...
+if [ $? -ne 0 ]; then
+  echo "Go vet failed, commit denied"
+  exit 1
+fi
+
+
+/usr/local/go/bin/go test ./...  > /dev/null
+if [ $? -ne 0 ]; then
+  echo "Tests failed, commit denied"
+  exit 3
+fi
+
+exit 0
