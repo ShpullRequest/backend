@@ -18,4 +18,6 @@ func ConfigureService(apiService api.Service) {
 	}
 
 	apiService.GetRouter().GET("/info", hs.Info)
+	apiService.GetRouter().NoRoute(hs.NoRoute)
+	apiService.GetRouter().NoMethod(hs.NoRoute)
 }

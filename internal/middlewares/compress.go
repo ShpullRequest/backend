@@ -2,10 +2,11 @@ package middlewares
 
 import (
 	"compress/gzip"
-	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 	"io"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type gzipWriter struct {
@@ -35,4 +36,6 @@ func (ms *middlewareService) Compress(ctx *gin.Context) {
 
 	ctx.Header("Content-Encoding", "gzip")
 	ctx.Writer = &gzipWriter{ResponseWriter: ctx.Writer, writer: gz}
+
+	ctx.Next()
 }
