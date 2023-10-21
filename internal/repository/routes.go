@@ -10,8 +10,9 @@ import (
 func (p *Pg) NewRoute(ctx context.Context, route models.Route) (*models.Route, error) {
 	_, err := p.db.ExecContext(
 		ctx,
-		"INSERT INTO events (name, description, address_text, address_lng, address_lat, is_deleted) VALUES ($1, $2, $3, $4, $5, $6)",
+		"INSERT INTO routes (company_id, name, description, address_text, address_lng, address_lat, is_deleted) VALUES ($1, $2, $3, $4, $5, $6, $7)",
 		route.Name,
+		route.CompanyID,
 		route.Description,
 		route.AddressText,
 		route.AddressLng,
@@ -35,10 +36,11 @@ func (p *Pg) GetRoute(ctx context.Context, id uuid.UUID) (*models.Route, error) 
 func (p *Pg) NewReviewRoute(ctx context.Context, reviewRoute models.ReviewRoute) (*models.ReviewRoute, error) {
 	_, err := p.db.ExecContext(
 		ctx,
-		"INSERT INTO reviews_routes (owner_id, route_id, review_text, created_at, is_deleted) VALUES ($1, $2, $3, $4, $5)",
+		"INSERT INTO reviews_routes (owner_id, route_id, review_text, stars, created_at, is_deleted) VALUES ($1, $2, $3, $4, $5, $6)",
 		reviewRoute.OwnerID,
 		reviewRoute.RouteID,
 		reviewRoute.ReviewText,
+		reviewRoute.Stars,
 		reviewRoute.CreatedAt,
 		reviewRoute.IsDeleted,
 	)

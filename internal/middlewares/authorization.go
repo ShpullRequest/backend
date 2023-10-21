@@ -14,10 +14,6 @@ import (
 )
 
 func (ms *middlewareService) Authorization(ctx *gin.Context) {
-	if !config.Config.ProdFlag {
-		return
-	}
-
 	authString := ctx.GetHeader("Authorization")
 	authString = strings.ReplaceAll(authString, "Bearer ", "")
 
@@ -48,7 +44,7 @@ func (ms *middlewareService) Authorization(ctx *gin.Context) {
 		timeCreateSign := time.Unix(int64(ts), 0)
 		sinceCreateSign := time.Since(timeCreateSign)
 
-		if sinceCreateSign.Hours() >= 1 {
+		if sinceCreateSign.Hours() >= 1 && config.Config.ProdFlag {
 			ms.logger.Debug("Authorization failed, signature expired", zap.Duration("SinceCreateSign", sinceCreateSign))
 
 			ctx.JSON(http.StatusUnauthorized, errs.NotAuthorized("Authorization failed, signature expired"))

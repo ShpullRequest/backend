@@ -9,6 +9,7 @@ type (
 	User struct {
 		ID                     uuid.UUID `json:"_id" db:"id"`
 		VkID                   int64     `json:"vk_id" db:"vk_id"`
+		IsAdmin                bool      `json:"is_admin,omitempty" db:"is_admin"`
 		PassedAppOnboarding    bool      `json:"passed_app_onboarding" db:"passed_app_onboarding"`
 		PassedPrismaOnboarding bool      `json:"passed_prisma_onboarding" db:"passed_prisma_onboarding"`
 	}

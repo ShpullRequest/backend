@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 )
 
 func (hs *handlerService) GetMe(ctx *gin.Context) {
@@ -47,7 +48,7 @@ func (hs *handlerService) GetMe(ctx *gin.Context) {
 
 func (hs *handlerService) GetUserByVkID(ctx *gin.Context) {
 	var params struct {
-		VkID int64 `uri:"vkId" binding:"numeric"`
+		VkID string `uri:"vkId" binding:"required,numeric"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
@@ -57,7 +58,9 @@ func (hs *handlerService) GetUserByVkID(ctx *gin.Context) {
 		return
 	}
 
-	user, err := hs.pg.GetUserByVkID(ctx, params.VkID)
+	vkID, _ := strconv.Atoi(params.VkID)
+
+	user, err := hs.pg.GetUserByVkID(ctx, int64(vkID))
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
 		ctx.Abort()
@@ -108,7 +111,9 @@ func (hs *handlerService) EditUser(ctx *gin.Context) {
 		user.PassedPrismaOnboarding = true
 	}
 
-	if err = hs.pg.EditUser(ctx, user); err != nil {
+	if err = hs.pg.SaveUser(ctx, user); err != nil {
+		hs.logger.Error("Error save user", zap.Error(err))
+
 		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
 		ctx.Abort()
 
