@@ -25,7 +25,7 @@ func (ms *middlewareService) Authorization(ctx *gin.Context) {
 	if err != nil {
 		ms.logger.Error("Failed params verify", zap.Error(err))
 
-		ctx.JSON(http.StatusInternalServerError, errs.InternalServer("An unknown error occurred while checking authorization"))
+		ctx.JSON(http.StatusInternalServerError, errs.NewInternalServer("An unknown error occurred while checking authorization"))
 		ctx.Abort()
 
 		return
@@ -39,7 +39,7 @@ func (ms *middlewareService) Authorization(ctx *gin.Context) {
 		if err != nil {
 			ms.logger.Error("Failed convert VkTs (string) to int", zap.Error(err))
 
-			ctx.JSON(http.StatusInternalServerError, errs.InternalServer("An unknown error occurred while checking authorization"))
+			ctx.JSON(http.StatusInternalServerError, errs.NewInternalServer("An unknown error occurred while checking authorization"))
 			ctx.Abort()
 
 			return
@@ -58,6 +58,8 @@ func (ms *middlewareService) Authorization(ctx *gin.Context) {
 		}
 
 		ms.logger.Debug("Authorization success", zap.Bool("ParamsVerify", ok))
+
+		ctx.Set("vk_params", params)
 		ctx.Next()
 	} else {
 		ms.logger.Debug("Authorization failed", zap.Bool("ParamsVerify", ok))

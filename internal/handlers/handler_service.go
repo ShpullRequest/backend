@@ -17,6 +17,10 @@ func ConfigureService(apiService api.Service) {
 		logger: apiService.GetLogger(),
 	}
 
+	apiService.GetRouter().GET("/users/", hs.GetMe)
+	apiService.GetRouter().GET("/users/:vkId", hs.GetUserByVkID)
+	apiService.GetRouter().PATCH("/users/", hs.EditUser)
+
 	apiService.GetRouter().NoRoute(hs.NoRoute)
 	apiService.GetRouter().NoMethod(hs.NoRoute)
 }
