@@ -34,6 +34,30 @@ func (p *Pg) GetPlace(ctx context.Context, id uuid.UUID) (*models.Place, error) 
 	return &place, err
 }
 
+func (p *Pg) GetAllPlaces(ctx context.Context) ([]models.Place, error) {
+	var places []models.Place
+	err := p.db.SelectContext(ctx, &places, "SELECT * FROM places")
+
+	return places, err
+}
+
+func (p *Pg) SavePlace(ctx context.Context, place *models.Place) error {
+	_, err := p.db.ExecContext(
+		ctx,
+		"UPDATE places SET name = $1, description = $2, carousel = $3, address_text = $4, address_lng = $5, address_lat = $6, is_deleted = $7 WHERE id = $8",
+		place.Name,
+		place.Description,
+		place.Carousel,
+		place.AddressText,
+		place.AddressLng,
+		place.AddressLat,
+		place.IsDeleted,
+		place.ID,
+	)
+
+	return err
+}
+
 func (p *Pg) NewReviewPlace(ctx context.Context, reviewPlace models.ReviewPlace) (*models.ReviewPlace, error) {
 	id, err := p.db.ExecContextWithReturnID(
 		ctx,
