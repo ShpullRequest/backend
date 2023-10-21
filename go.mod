@@ -6,7 +6,7 @@ require (
 	github.com/SevereCloud/vksdk/v2 v2.16.1
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-playground/validator/v10 v10.14.0
+  github.com/go-playground/validator/v10 v10.14.0
 	github.com/google/uuid v1.3.1
 	github.com/jackc/pgx/v5 v5.4.3
 	github.com/jmoiron/sqlx v1.3.5
