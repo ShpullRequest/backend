@@ -15,7 +15,6 @@
         is_organisation BOOL NOT NULL,
         name VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
-        average_rating DOUBLE PRECISION NOT NULL,
         photo_card TEXT NOT NULL
     );
     CREATE INDEX idx_companies_user_id ON companies (user_id);
