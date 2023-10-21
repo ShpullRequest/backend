@@ -24,6 +24,7 @@ type (
 		PlaceID    uuid.UUID `json:"place_id" db:"place_id"`
 		ReviewText string    `json:"review_text" db:"review_text"`
 		CreatedAt  time.Time `json:"created_at" db:"created_at"`
+		Stars      float64   `json:"stars" db:"stars"`
 		IsDeleted  bool      `json:"is_deleted" db:"is_deleted"`
 	}
 )

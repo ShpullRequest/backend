@@ -4,15 +4,16 @@
     CREATE TABLE IF NOT EXISTS users (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
         vk_id BIGINT NOT NULL,
-        passed_app_onboarding BOOL DEFAULT FALSE,
-        passed_prisma_onboarding BOOL DEFAULT FALSE
+        is_admin BOOL NOT NULL DEFAULT FALSE,
+        passed_app_onboarding BOOL NOT NULL DEFAULT FALSE,
+        passed_prisma_onboarding BOOL NOT NULL DEFAULT FALSE
     );
     CREATE UNIQUE INDEX idx_unique_users_vkid ON users (vk_id);
 
     CREATE TABLE IF NOT EXISTS companies (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
         user_id UUID NOT NULL,
-        is_organisation BOOL NOT NULL,
+        is_released BOOL NOT NULL DEFAULT FALSE,
         name VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
         photo_card TEXT NOT NULL
@@ -30,6 +31,7 @@
 
     CREATE TABLE IF NOT EXISTS routes (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        company_id UUID,
         name VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
         address_text TEXT NOT NULL,
@@ -37,6 +39,7 @@
         address_lat DOUBLE PRECISION NOT NULL,
         is_deleted BOOL NOT NULL
     );
+    CREATE INDEX idx_routes_company_id ON routes (company_id);
     CREATE INDEX idx_routes_name ON routes (name);
 
     CREATE TABLE IF NOT EXISTS events (
@@ -72,6 +75,7 @@
         owner_id UUID NOT NULL,
         place_id UUID NOT NULL,
         review_text TEXT NOT NULL,
+        stars DOUBLE PRECISION NOT NULL DEFAULT 5.0,
         created_at TIMESTAMPTZ NOT NULL,
         is_deleted BOOL NOT NULL
     );
@@ -83,6 +87,7 @@
         owner_id UUID NOT NULL,
         route_id UUID NOT NULL,
         review_text TEXT NOT NULL,
+        stars DOUBLE PRECISION NOT NULL DEFAULT 5.0,
         created_at TIMESTAMPTZ NOT NULL,
         is_deleted BOOL NOT NULL
     );
@@ -94,6 +99,7 @@
         owner_id UUID NOT NULL,
         event_id UUID NOT NULL,
         review_text TEXT NOT NULL,
+        stars DOUBLE PRECISION NOT NULL DEFAULT 5.0,
         created_at TIMESTAMPTZ NOT NULL,
         is_deleted BOOL NOT NULL
     );

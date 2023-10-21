@@ -36,10 +36,11 @@ func (p *Pg) GetPlace(ctx context.Context, id uuid.UUID) (*models.Place, error) 
 func (p *Pg) NewReviewPlace(ctx context.Context, reviewPlace models.ReviewPlace) (*models.ReviewPlace, error) {
 	_, err := p.db.ExecContext(
 		ctx,
-		"INSERT INTO reviews_places (owner_id, place_id, review_text, created_at, is_deleted) VALUES ($1, $2, $3, $4, $5)",
+		"INSERT INTO reviews_places (owner_id, place_id, review_text, stars, created_at, is_deleted) VALUES ($1, $2, $3, $4, $5, $6)",
 		reviewPlace.OwnerID,
 		reviewPlace.PlaceID,
 		reviewPlace.ReviewText,
+		reviewPlace.Stars,
 		reviewPlace.CreatedAt,
 		reviewPlace.IsDeleted,
 	)

@@ -45,7 +45,7 @@ func (p *Pg) GetAllEvents(ctx context.Context) ([]models.Event, error) {
 
 func (p *Pg) GetEventByCompanyID(ctx context.Context, eventID uuid.UUID, companyID uuid.UUID) (*models.Event, error) {
 	var event models.Event
-	err := p.db.GetContext(ctx, &event, "SELECT * FROM events WHERE eventID = $1 AND company_id = $2", eventID, companyID)
+	err := p.db.GetContext(ctx, &event, "SELECT * FROM events WHERE id = $1 AND company_id = $2", eventID, companyID)
 
 	return &event, err
 }
@@ -60,10 +60,11 @@ func (p *Pg) GetAllEventsByCompanyID(ctx context.Context, companyID uuid.UUID) (
 func (p *Pg) NewReviewEvent(ctx context.Context, reviewEvent models.ReviewEvent) (*models.ReviewEvent, error) {
 	_, err := p.db.ExecContext(
 		ctx,
-		"INSERT INTO reviews_events (owner_id, event_id, review_text, created_at, is_deleted) VALUES ($1, $2, $3, $4, $5)",
+		"INSERT INTO reviews_events (owner_id, event_id, review_text, stars, created_at, is_deleted) VALUES ($1, $2, $3, $4, $5, $6)",
 		reviewEvent.OwnerID,
 		reviewEvent.EventID,
 		reviewEvent.ReviewText,
+		reviewEvent.Stars,
 		reviewEvent.CreatedAt,
 		reviewEvent.IsDeleted,
 	)

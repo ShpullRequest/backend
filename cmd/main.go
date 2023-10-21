@@ -11,16 +11,15 @@ import (
 )
 
 func main() {
-	log, err := logger.New()
-	if err != nil {
+	config.Load()
+	if err := config.Parse(); err != nil {
 		panic(err)
 	}
 
-	config.Load()
-	if err = config.Parse(); err != nil {
-		log.Panic("Failed loading config server", zap.Error(err))
+	log, err := logger.New(config.Config)
+	if err != nil {
+		panic(err)
 	}
-	log.Debug("Success loaded and initialized config", zap.Any("Config", config.Config))
 
 	pg, err := repository.NewPG(config.Config, log)
 	if err != nil {

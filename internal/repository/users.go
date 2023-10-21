@@ -22,7 +22,7 @@ func (p *Pg) NewUser(ctx context.Context, user models.User) (*models.User, error
 	return &user, err
 }
 
-func (p *Pg) EditUser(ctx context.Context, user *models.User) error {
+func (p *Pg) SaveUser(ctx context.Context, user *models.User) error {
 	_, err := p.db.ExecContext(
 		ctx,
 		"UPDATE users SET passed_app_onboarding = $1, passed_prisma_onboarding = $2 WHERE id = $3",

@@ -8,6 +8,7 @@ import (
 type (
 	Route struct {
 		ID          uuid.UUID `json:"_id" db:"id"`
+		CompanyID   uuid.UUID `json:"company_id,omitempty" db:"company_id"`
 		Name        string    `json:"name" db:"name"`
 		Description string    `json:"description" db:"description"`
 		AddressText string    `json:"address_text" db:"address_text"`
@@ -21,6 +22,7 @@ type (
 		OwnerID    uuid.UUID `json:"owner_id" db:"owner_id"`
 		RouteID    uuid.UUID `json:"route_id" db:"route_id"`
 		ReviewText string    `json:"review_text" db:"review_text"`
+		Stars      float64   `json:"stars" db:"stars"`
 		CreatedAt  time.Time `json:"created_at" db:"created_at"`
 		IsDeleted  bool      `json:"is_deleted" db:"is_deleted"`
 	}

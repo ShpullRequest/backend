@@ -8,7 +8,7 @@ import (
 type (
 	Event struct {
 		ID          uuid.UUID `json:"_id" db:"id"`
-		CompanyID   uuid.UUID `json:"company_id" db:"company_id"`
+		CompanyID   uuid.UUID `json:"company_id,omitempty" db:"company_id"`
 		Name        string    `json:"name" db:"name"`
 		Description string    `json:"description" db:"description"`
 		Carousel    []string  `json:"carousel" db:"carousel"`
@@ -36,6 +36,7 @@ type (
 		OwnerID    uuid.UUID `json:"owner_id" db:"owner_id"`
 		EventID    uuid.UUID `json:"event_id" db:"event_id"`
 		ReviewText string    `json:"review_text" db:"review_text"`
+		Stars      float64   `json:"stars" db:"stars"`
 		CreatedAt  time.Time `json:"created_at" db:"created_at"`
 		IsDeleted  bool      `json:"is_deleted" db:"is_deleted"`
 	}
