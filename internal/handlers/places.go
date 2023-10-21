@@ -82,3 +82,66 @@ func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, models.NewResponse(reviewPlace))
 	ctx.Abort()
 }
+
+// NewPlace()
+func (hs *handlerService) NewPlace(ctx *gin.Context) {
+	var params struct {
+		Name        string   `uri:"name" binding:"required"`
+		Description string   `uri:"description" binding:"required"`
+		Carousel    []string `uri:"carousel" binding:"required"`
+		AddressText string   `uri:"address_text" binding:"required"`
+		AddressLng  float64  `uri:"address_lng" binding:"required"`
+		AddressLat  float64  `uri:"address_lat" binding:"required"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+
+	place, err := hs.pg.NewPlace(ctx, models.Place{
+		Name:        params.Name,
+		Description: params.Description,
+		Carousel:    params.Carousel,
+		AddressText: params.AddressText,
+		AddressLng:  params.AddressLng,
+		AddressLat:  params.AddressLat,
+	})
+	if err != nil {
+		hs.logger.Error("Error new place", zap.Error(err))
+
+		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		ctx.Abort()
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, models.NewResponse(place))
+	ctx.Abort()
+}
+
+//TODO: Edit plae
+//func (hs *handlerService) EditPlace(ctx *gin.Context) {}
+
+// GetPlace()
+func (hs *handlerService) GetPlace(ctx *gin.Context) {
+	var params struct {
+		Name        string   `uri:"name" binding:"required"`
+		Description string   `uri:"description" binding:"required"`
+		Carousel    []string `uri:"carousel" binding:"required"`
+		AddressText string   `uri:"address_text" binding:"required"`
+		AddressLng  float64  `uri:"address_lng" binding:"required"`
+		AddressLat  float64  `uri:"address_lat" binding:"required"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+}
+
+//GetAllPlace()
