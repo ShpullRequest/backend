@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/ShpullRequest/backend/internal/config"
 	"github.com/ShpullRequest/backend/pkg/migrations"
+	"github.com/google/uuid"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"go.uber.org/zap"
@@ -16,6 +17,7 @@ type PgSQL interface {
 	SelectContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error
 	NamedQueryContext(ctx context.Context, query string, arg interface{}) (*sqlx.Rows, error)
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
+	ExecContextWithReturnID(ctx context.Context, query string, args ...interface{}) (uuid.UUID, error)
 	NamedExecContext(ctx context.Context, query string, arg interface{}) (sql.Result, error)
 	PrepareContextMaster(ctx context.Context, query string) (*sqlx.Stmt, error)
 	PrepareContextReplica(ctx context.Context, query string) (*sqlx.Stmt, error)
@@ -72,6 +74,19 @@ func (s *Storage) NamedQueryContext(ctx context.Context, query string, arg inter
 
 func (s *Storage) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	return s.master.ExecContext(ctx, query, args...)
+}
+
+func (s *Storage) ExecContextWithReturnID(ctx context.Context, query string, args ...interface{}) (uuid.UUID, error) {
+	query = fmt.Sprintf("%s RETURNING id", query)
+
+	var id uuid.UUID
+	row := s.master.QueryRowContext(ctx, query, args...)
+	if row.Err() != nil {
+		return uuid.UUID{}, row.Err()
+	}
+
+	err := row.Scan(&id)
+	return id, err
 }
 
 func (s *Storage) NamedExecContext(ctx context.Context, query string, arg interface{}) (sql.Result, error) {

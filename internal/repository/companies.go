@@ -8,7 +8,7 @@ import (
 )
 
 func (p *Pg) NewCompany(ctx context.Context, company models.Company) (*models.Company, error) {
-	_, err := p.db.ExecContext(
+	id, err := p.db.ExecContextWithReturnID(
 		ctx,
 		"INSERT INTO companies (user_id, name, description, photo_card) VALUES ($1, $2, $3, $4)",
 		company.UserID,
@@ -20,7 +20,7 @@ func (p *Pg) NewCompany(ctx context.Context, company models.Company) (*models.Co
 		return nil, err
 	}
 
-	_ = p.db.GetContext(ctx, &company.ID, "SELECT id FROM companies WHERE user_id = $1 ORDER BY id DESC", company.UserID)
+	company.ID = id
 	return &company, err
 }
 

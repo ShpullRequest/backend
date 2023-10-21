@@ -8,7 +8,7 @@ import (
 )
 
 func (p *Pg) NewEvent(ctx context.Context, event models.Event) (*models.Event, error) {
-	_, err := p.db.ExecContext(
+	id, err := p.db.ExecContextWithReturnID(
 		ctx,
 		"INSERT INTO events (company_id, name, description, carousel, icon, start_time, address_text, address_lng, address_lat, is_deleted) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)",
 		event.CompanyID,
@@ -26,6 +26,7 @@ func (p *Pg) NewEvent(ctx context.Context, event models.Event) (*models.Event, e
 		return nil, err
 	}
 
+	event.ID = id
 	return &event, nil
 }
 
@@ -58,7 +59,7 @@ func (p *Pg) GetAllEventsByCompanyID(ctx context.Context, companyID uuid.UUID) (
 }
 
 func (p *Pg) NewReviewEvent(ctx context.Context, reviewEvent models.ReviewEvent) (*models.ReviewEvent, error) {
-	_, err := p.db.ExecContext(
+	id, err := p.db.ExecContextWithReturnID(
 		ctx,
 		"INSERT INTO reviews_events (owner_id, event_id, review_text, stars, created_at, is_deleted) VALUES ($1, $2, $3, $4, $5, $6)",
 		reviewEvent.OwnerID,
@@ -72,6 +73,7 @@ func (p *Pg) NewReviewEvent(ctx context.Context, reviewEvent models.ReviewEvent)
 		return nil, err
 	}
 
+	reviewEvent.ID = id
 	return &reviewEvent, nil
 }
 

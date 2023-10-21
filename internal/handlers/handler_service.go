@@ -21,11 +21,14 @@ func ConfigureService(apiService api.Service) {
 	apiService.GetRouter().GET("/users/:vkId", hs.GetUserByVkID)
 	apiService.GetRouter().PATCH("/users/", hs.EditUser)
 
-	apiService.GetRouter().GET("/companies", hs.GetAllCompanies)
+	apiService.GetRouter().GET("/companies/", hs.GetAllCompanies)
 	apiService.GetRouter().GET("/companies/:companyId", hs.GetCompany)
 	apiService.GetRouter().GET("/companies/my", hs.GetMyCompanies)
-	apiService.GetRouter().POST("/companies", hs.NewCompany)
+	apiService.GetRouter().POST("/companies/", hs.NewCompany)
 	apiService.GetRouter().POST("/companies/:companyId/accept", hs.AcceptCompany)
+
+	apiService.GetRouter().GET("/events/:eventId", hs.GetEvent)
+	apiService.GetRouter().POST("/events/", hs.NewEvent)
 
 	apiService.GetRouter().NoRoute(hs.NoRoute)
 	apiService.GetRouter().NoMethod(hs.NoRoute)

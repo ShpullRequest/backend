@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"strconv"
@@ -64,8 +63,7 @@ func (hs *handlerService) parseShouldBindErrors(err error) (*models.ErrorRespons
 		}
 	}
 
-	hs.logger.Error("Internal server error in parseShouldBindErrors", zap.Error(err))
-	return models.NewErrorResponse(errs.NewInternalServer("Internal server error")), http.StatusInternalServerError, err
+	return models.NewErrorResponse(errs.NewBadRequest(fmt.Sprint(err))), http.StatusBadRequest, err
 }
 
 func (hs *handlerService) parseValidationErrors(err error) (bool, *models.ErrorResponse) {

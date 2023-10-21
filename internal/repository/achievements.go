@@ -8,7 +8,7 @@ import (
 )
 
 func (p *Pg) NewAchievement(ctx context.Context, achievement models.Achievements) (*models.Achievements, error) {
-	_, err := p.db.ExecContext(
+	id, err := p.db.ExecContextWithReturnID(
 		ctx,
 		"INSERT INTO achievements (name, description, icon, coins) VALUES ($1, $2, $3, $4)",
 		achievement.Name,
@@ -20,6 +20,7 @@ func (p *Pg) NewAchievement(ctx context.Context, achievement models.Achievements
 		return nil, err
 	}
 
+	achievement.ID = id
 	return &achievement, nil
 }
 
