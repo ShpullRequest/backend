@@ -17,7 +17,6 @@ func ConfigureService(apiService api.Service) {
 		logger: apiService.GetLogger(),
 	}
 
-	apiService.GetRouter().GET("/info", hs.Info)
 	apiService.GetRouter().NoRoute(hs.NoRoute)
 	apiService.GetRouter().NoMethod(hs.NoRoute)
 }
