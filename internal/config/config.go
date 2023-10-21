@@ -13,6 +13,7 @@ type NodeConfig struct {
 
 	AppAccessToken string `env:"APP_ACCESS_TOKEN"`
 	AppSecretToken string `env:"APP_SECRET_TOKEN"`
+	VkMapsAPIKey   string `env:"VK_MAPS_API_KEY"`
 
 	MasterDSN      string `env:"MASTER_DSN"`
 	MasterMaxOpen  int    `env:"MASTER_MAX_OPEN"`
@@ -28,6 +29,7 @@ func Load() {
 
 	flag.StringVar(&Config.AppAccessToken, "app-access-token", "", "app access token")
 	flag.StringVar(&Config.AppSecretToken, "app-secret-token", "", "app secret token")
+	flag.StringVar(&Config.VkMapsAPIKey, "vk-maps-api-key", "", "vk maps api key")
 
 	flag.StringVar(&Config.MasterDSN, "master-dsn", "", "postgres master dsn")
 	flag.IntVar(&Config.MasterMaxOpen, "master-max-open", 6, "maximum opened pools for master")

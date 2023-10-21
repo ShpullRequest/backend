@@ -58,6 +58,25 @@ func (p *Pg) GetAllEventsByCompanyID(ctx context.Context, companyID uuid.UUID) (
 	return events, err
 }
 
+func (p *Pg) SaveEvent(ctx context.Context, event *models.Event) error {
+	_, err := p.db.ExecContext(
+		ctx,
+		`
+			UPDATE events 
+				SET name = $1, description = $2, carousel = $3, icon = $4, 
+				    start_time = $5, address_text = $6, address_lng = $7, 
+				    address_lat = $8, is_deleted = $9  
+				WHERE id = $10
+		`,
+		event.Name, event.Description, event.Carousel, event.Icon,
+		event.StartTime, event.AddressText, event.AddressLng,
+		event.AddressLat, event.IsDeleted,
+		event.ID,
+	)
+
+	return err
+}
+
 func (p *Pg) NewReviewEvent(ctx context.Context, reviewEvent models.ReviewEvent) (*models.ReviewEvent, error) {
 	id, err := p.db.ExecContextWithReturnID(
 		ctx,
