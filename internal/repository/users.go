@@ -7,7 +7,7 @@ import (
 )
 
 func (p *Pg) NewUser(ctx context.Context, user models.User) (*models.User, error) {
-	_, err := p.db.ExecContext(
+	id, err := p.db.ExecContextWithReturnID(
 		ctx,
 		"INSERT INTO users (vk_id, passed_app_onboarding, passed_prisma_onboarding) VALUES ($1, $2, $3)",
 		user.VkID,
@@ -18,7 +18,7 @@ func (p *Pg) NewUser(ctx context.Context, user models.User) (*models.User, error
 		return nil, err
 	}
 
-	err = p.db.GetContext(ctx, &user.ID, "SELECT id FROM users WHERE vk_id = $1", user.VkID)
+	user.ID = id
 	return &user, err
 }
 

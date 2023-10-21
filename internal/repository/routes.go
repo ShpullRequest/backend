@@ -8,7 +8,7 @@ import (
 )
 
 func (p *Pg) NewRoute(ctx context.Context, route models.Route) (*models.Route, error) {
-	_, err := p.db.ExecContext(
+	id, err := p.db.ExecContextWithReturnID(
 		ctx,
 		"INSERT INTO routes (company_id, name, description, address_text, address_lng, address_lat, is_deleted) VALUES ($1, $2, $3, $4, $5, $6, $7)",
 		route.Name,
@@ -23,6 +23,7 @@ func (p *Pg) NewRoute(ctx context.Context, route models.Route) (*models.Route, e
 		return nil, err
 	}
 
+	route.ID = id
 	return &route, nil
 }
 

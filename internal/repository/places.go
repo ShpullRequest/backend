@@ -8,7 +8,7 @@ import (
 )
 
 func (p *Pg) NewPlace(ctx context.Context, place models.Place) (*models.Place, error) {
-	_, err := p.db.ExecContext(
+	id, err := p.db.ExecContextWithReturnID(
 		ctx,
 		"INSERT INTO places (name, description, carousel, address_text, address_lng, address_lat, is_deleted) VALUES ($1, $2, $3, $4, $5, $6, $7)",
 		place.Name,
@@ -23,6 +23,7 @@ func (p *Pg) NewPlace(ctx context.Context, place models.Place) (*models.Place, e
 		return nil, err
 	}
 
+	place.ID = id
 	return &place, nil
 }
 
@@ -34,7 +35,7 @@ func (p *Pg) GetPlace(ctx context.Context, id uuid.UUID) (*models.Place, error) 
 }
 
 func (p *Pg) NewReviewPlace(ctx context.Context, reviewPlace models.ReviewPlace) (*models.ReviewPlace, error) {
-	_, err := p.db.ExecContext(
+	id, err := p.db.ExecContextWithReturnID(
 		ctx,
 		"INSERT INTO reviews_places (owner_id, place_id, review_text, stars, created_at, is_deleted) VALUES ($1, $2, $3, $4, $5, $6)",
 		reviewPlace.OwnerID,
@@ -48,6 +49,7 @@ func (p *Pg) NewReviewPlace(ctx context.Context, reviewPlace models.ReviewPlace)
 		return nil, err
 	}
 
+	reviewPlace.ID = id
 	return &reviewPlace, nil
 }
 
