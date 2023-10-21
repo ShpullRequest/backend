@@ -7,7 +7,7 @@ type internalServer struct {
 	Message string `json:"message"`
 }
 
-func InternalServer(message string) *internalServer {
+func NewInternalServer(message string) *internalServer {
 	return &internalServer{
 		Code:    http.StatusInternalServerError,
 		Message: message,
