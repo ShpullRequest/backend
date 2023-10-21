@@ -27,8 +27,10 @@ func ConfigureService(apiService api.Service) {
 	apiService.GetRouter().POST("/companies/", hs.NewCompany)
 	apiService.GetRouter().POST("/companies/:companyId/accept", hs.AcceptCompany)
 
+	apiService.GetRouter().GET("/events/", hs.GetAllEvents)
 	apiService.GetRouter().GET("/events/:eventId", hs.GetEvent)
 	apiService.GetRouter().POST("/events/", hs.NewEvent)
+	apiService.GetRouter().PATCH("/events/:eventId", hs.SaveEvent)
 
 	apiService.GetRouter().NoRoute(hs.NoRoute)
 	apiService.GetRouter().NoMethod(hs.NoRoute)
