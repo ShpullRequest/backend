@@ -7,7 +7,7 @@
         passed_app_onboarding BOOL DEFAULT FALSE,
         passed_prisma_onboarding BOOL DEFAULT FALSE
     );
-    CREATE INDEX idx_users_vkid ON users (vk_id);
+    CREATE UNIQUE INDEX idx_unique_users_vkid ON users (vk_id);
 
     CREATE TABLE IF NOT EXISTS companies (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
