@@ -16,4 +16,5 @@ func ConfigureService(apiService api.Service) {
 
 	apiService.GetRouter().Use(ms.Logger)
 	apiService.GetRouter().Use(ms.Compress)
+	apiService.GetRouter().Use(ms.Authorization)
 }

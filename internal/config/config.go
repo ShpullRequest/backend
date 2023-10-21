@@ -11,6 +11,9 @@ var Config NodeConfig
 type NodeConfig struct {
 	Address string `env:"ADDRESS"`
 
+	AppAccessToken string `env:"APP_ACCESS_TOKEN"`
+	AppSecretToken string `env:"APP_SECRET_TOKEN"`
+
 	MasterDSN      string `env:"MASTER_DSN"`
 	MasterMaxOpen  int    `env:"MASTER_MAX_OPEN"`
 	ReplicaDSN     string `env:"REPLICA_DSN"`
@@ -22,6 +25,9 @@ type NodeConfig struct {
 
 func Load() {
 	flag.StringVar(&Config.Address, "address", ":8080", "api address")
+
+	flag.StringVar(&Config.AppAccessToken, "app-access-token", "", "app access token")
+	flag.StringVar(&Config.AppSecretToken, "app-secret-token", "", "app secret token")
 
 	flag.StringVar(&Config.MasterDSN, "master-dsn", "", "postgres master dsn")
 	flag.IntVar(&Config.MasterMaxOpen, "master-max-open", 6, "maximum opened pools for master")
