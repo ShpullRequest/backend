@@ -48,3 +48,7 @@ type (
 		CreatedAt time.Time `json:"created_at" db:"created_at"`
 	}
 )
+
+func (u *User) IsNil() bool {
+	return u.ID.ID() == 0
+}

@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"github.com/ShpullRequest/backend/internal/config"
 	"github.com/ShpullRequest/backend/pkg/storage/postgres"
+	"github.com/jackc/pgx/v5/pgconn"
 	"go.uber.org/zap"
 )
 
@@ -22,4 +24,15 @@ func NewPG(cfg config.NodeConfig, logger *zap.Logger) (*Pg, error) {
 		db:     db,
 		logger: logger,
 	}, nil
+}
+
+type errorFunc func(code string) bool
+
+func (p *Pg) IsError(f errorFunc, err error) bool {
+	var pgError *pgconn.PgError
+	if !errors.As(err, &pgError) {
+		return false
+	}
+
+	return f(pgError.Code)
 }
