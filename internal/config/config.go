@@ -18,7 +18,6 @@ type NodeConfig struct {
 	MigrationsFlag bool   `env:"MIGRATIONS_FLAG"`
 
 	ProdFlag bool `env:"PROD_FLAG"`
-	LogMode  int  `env:"LOG_MODE"`
 }
 
 func Load() {
@@ -31,7 +30,6 @@ func Load() {
 	flag.BoolVar(&Config.MigrationsFlag, "migrations-flag", false, "database flag migrations")
 
 	flag.BoolVar(&Config.ProdFlag, "prod-flag", false, "flag for production server")
-	flag.IntVar(&Config.LogMode, "log-mode", 2, "log mode logger")
 }
 
 func Parse() error {
