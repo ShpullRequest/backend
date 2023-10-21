@@ -1,165 +1,165 @@
 -- +goose Up
 
--- Main tables
+-- Основные таблицы
     CREATE TABLE IF NOT EXISTS users (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        VkId BIGINT NOT NULL,
-        PassedAppOnboarding BOOL DEFAULT FALSE,
-        PassedPrismaOnboarding BOOL DEFAULT FALSE
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        vk_id BIGINT NOT NULL,
+        passed_app_onboarding BOOL DEFAULT FALSE,
+        passed_prisma_onboarding BOOL DEFAULT FALSE
     );
-    CREATE INDEX idx_users_vkid ON users (VkId);
+    CREATE INDEX idx_users_vkid ON users (vk_id);
 
     CREATE TABLE IF NOT EXISTS companies (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        UserId UUID NOT NULL,
-        IsOrganisation BOOL NOT NULL,
-        Name VARCHAR(100) NOT NULL,
-        Description TEXT NOT NULL,
-        AverageRating DOUBLE PRECISION NOT NULL,
-        PhotoCard TEXT NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id UUID NOT NULL,
+        is_organisation BOOL NOT NULL,
+        name VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        average_rating DOUBLE PRECISION NOT NULL,
+        photo_card TEXT NOT NULL
     );
-    CREATE INDEX idx_companies_user_id ON companies (UserId);
-    CREATE INDEX idx_companies_name ON companies (Name);
+    CREATE INDEX idx_companies_user_id ON companies (user_id);
+    CREATE INDEX idx_companies_name ON companies (name);
 
     CREATE TABLE IF NOT EXISTS achievements (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        Name VARCHAR(100) NOT NULL,
-        Description TEXT NOT NULL,
-        Icon TEXT NOT NULL,
-        Coins INT NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        icon TEXT NOT NULL,
+        coins INT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS routes (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        Name VARCHAR(100) NOT NULL,
-        Description TEXT NOT NULL,
-        AddressText TEXT NOT NULL,
-        AddressLng DOUBLE PRECISION NOT NULL,
-        AddressLat DOUBLE PRECISION NOT NULL,
-        IsDeleted BOOL NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        address_text TEXT NOT NULL,
+        address_lng DOUBLE PRECISION NOT NULL,
+        address_lat DOUBLE PRECISION NOT NULL,
+        is_deleted BOOL NOT NULL
     );
-    CREATE INDEX idx_routes_name ON routes (Name);
+    CREATE INDEX idx_routes_name ON routes (name);
 
     CREATE TABLE IF NOT EXISTS events (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        CompanyId UUID,
-        Name VARCHAR(100) NOT NULL,
-        Description TEXT NOT NULL,
-        Carousel TEXT[],
-        Icon TEXT,
-        StartTime TIMESTAMPTZ NOT NULL,
-        AddressText TEXT NOT NULL,
-        AddressLng DOUBLE PRECISION NOT NULL,
-        AddressLat DOUBLE PRECISION NOT NULL,
-        IsDeleted BOOL NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        company_id UUID,
+        name VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        carousel TEXT[],
+        icon TEXT,
+        start_time TIMESTAMPTZ NOT NULL,
+        address_text TEXT NOT NULL,
+        address_lng DOUBLE PRECISION NOT NULL,
+        address_lat DOUBLE PRECISION NOT NULL,
+        is_deleted BOOL NOT NULL
     );
-    CREATE INDEX idx_events_company_id ON events (CompanyId);
-    CREATE INDEX idx_events_name ON events (Name);
+    CREATE INDEX idx_events_company_id ON events (company_id);
+    CREATE INDEX idx_events_name ON events (name);
 
     CREATE TABLE IF NOT EXISTS places (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        Name VARCHAR(100) NOT NULL,
-        Description TEXT NOT NULL,
-        Carousel TEXT[],
-        AddressText TEXT NOT NULL,
-        AddressLng DOUBLE PRECISION NOT NULL,
-        AddressLat DOUBLE PRECISION NOT NULL,
-        IsDeleted BOOL NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        carousel TEXT[],
+        address_text TEXT NOT NULL,
+        address_lng DOUBLE PRECISION NOT NULL,
+        address_lat DOUBLE PRECISION NOT NULL,
+        is_deleted BOOL NOT NULL
     );
-    CREATE INDEX idx_places_name ON places (Name);
+    CREATE INDEX idx_places_name ON places (name);
 
     CREATE TABLE IF NOT EXISTS reviews_places (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        OwnerId UUID NOT NULL,
-        PlaceId UUID NOT NULL,
-        ReviewText TEXT NOT NULL,
-        CreatedAt TIMESTAMPTZ NOT NULL,
-        IsDeleted BOOL NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        owner_id UUID NOT NULL,
+        place_id UUID NOT NULL,
+        review_text TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL,
+        is_deleted BOOL NOT NULL
     );
-    CREATE INDEX idx_reviews_places_owner ON reviews_places (OwnerId);
-    CREATE INDEX idx_reviews_places_route ON reviews_places (PlaceId);
+    CREATE INDEX idx_reviews_places_owner ON reviews_places (owner_id);
+    CREATE INDEX idx_reviews_places_route ON reviews_places (place_id);
 
     CREATE TABLE IF NOT EXISTS reviews_routes (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        OwnerId UUID NOT NULL,
-        RouteId UUID NOT NULL,
-        ReviewText TEXT NOT NULL,
-        CreatedAt TIMESTAMPTZ NOT NULL,
-        IsDeleted BOOL NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        owner_id UUID NOT NULL,
+        route_id UUID NOT NULL,
+        review_text TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL,
+        is_deleted BOOL NOT NULL
     );
-    CREATE INDEX idx_reviews_routes_owner ON reviews_routes (OwnerId);
-    CREATE INDEX idx_reviews_routes_route ON reviews_routes (RouteId);
+    CREATE INDEX idx_reviews_routes_owner ON reviews_routes (owner_id);
+    CREATE INDEX idx_reviews_routes_route ON reviews_routes (route_id);
 
     CREATE TABLE IF NOT EXISTS reviews_events (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        OwnerId UUID NOT NULL,
-        EventId UUID NOT NULL,
-        ReviewText TEXT NOT NULL,
-        CreatedAt TIMESTAMPTZ NOT NULL,
-        IsDeleted BOOL NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        owner_id UUID NOT NULL,
+        event_id UUID NOT NULL,
+        review_text TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL,
+        is_deleted BOOL NOT NULL
     );
-    CREATE INDEX idx_reviews_events_owner ON reviews_events (OwnerId);
-    CREATE INDEX idx_reviews_events_route ON reviews_events (EventId);
+    CREATE INDEX idx_reviews_events_owner ON reviews_events (owner_id);
+    CREATE INDEX idx_reviews_events_route ON reviews_events (event_id);
 
 
--- Filters
+-- Фильтры
     CREATE TABLE IF NOT EXISTS events_filters (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        Name VARCHAR(100)
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        name VARCHAR(100)
     );
 
     CREATE TABLE IF NOT EXISTS map_filters (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        Name VARCHAR(100)
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        name VARCHAR(100)
     );
 
 
--- Tables relationship
+-- Связи между таблицами
     CREATE TABLE IF NOT EXISTS users_map_filters_rel (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        UserId UUID,
-        FilterId UUID
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id UUID,
+        filter_id UUID
     );
-    CREATE INDEX idx_users_map_filters_rel_user_filter ON users_map_filters_rel (UserId, FilterId);
+    CREATE INDEX idx_users_map_filters_rel_user_filter ON users_map_filters_rel (user_id, filter_id);
 
     CREATE TABLE IF NOT EXISTS users_privacy_rel (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        UserId UUID,
-        CanViewAchievements BOOL,
-        CanViewProgressOnMap BOOL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id UUID,
+        can_view_achievements BOOL,
+        can_view_progress_on_map BOOL
     );
-    CREATE INDEX idx_users_privacy_rel_user ON users_privacy_rel (UserId);
+    CREATE INDEX idx_users_privacy_rel_user ON users_privacy_rel (user_id);
 
     CREATE TABLE IF NOT EXISTS users_progress_on_map_rel (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        UserId UUID,
-        RouteId UUID,
-        EventId UUID,
-        PlaceId UUID,
-        CreatedAt TIMESTAMPTZ
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id UUID,
+        route_id UUID,
+        event_id UUID,
+        place_id UUID,
+        created_at TIMESTAMPTZ
     );
-    CREATE INDEX idx_users_progress_on_map_rel_user ON users_progress_on_map_rel (UserId);
+    CREATE INDEX idx_users_progress_on_map_rel_user ON users_progress_on_map_rel (user_id);
 
     CREATE TABLE IF NOT EXISTS users_achievements_rel (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        UserId UUID NOT NULL,
-        AchievementId UUID NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id UUID NOT NULL,
+        achievement_id UUID NOT NULL
     );
-    CREATE INDEX idx_users_achievements_rel_user_rel ON users_achievements_rel (UserId);
+    CREATE INDEX idx_users_achievements_rel_user_rel ON users_achievements_rel (user_id);
 
     CREATE TABLE IF NOT EXISTS users_coins_rel (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        UserId UUID NOT NULL,
-        Coins INT NOT NULL DEFAULT 0,
-        Operation BOOL NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        user_id UUID NOT NULL,
+        coins INT NOT NULL DEFAULT 0,
+        operation BOOL NOT NULL
     );
-    CREATE INDEX idx_users_coins_rel_user ON users_coins_rel (UserId);
+    CREATE INDEX idx_users_coins_rel_user ON users_coins_rel (user_id);
 
     CREATE TABLE IF NOT EXISTS events_filters_rel (
-        Id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        EventId UUID NOT NULL,
-        FilterId UUID NOT NULL
+        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+        event_id UUID NOT NULL,
+        filter_id UUID NOT NULL
     );
-    CREATE INDEX idx_events_filters_rel_event_filter ON events_filters_rel (EventId, FilterId);
+    CREATE INDEX idx_events_filters_rel_event_filter ON events_filters_rel (event_id, filter_id);
 
 -- +goose Down
