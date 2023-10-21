@@ -122,19 +122,19 @@ func (hs *handlerService) NewPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
-// EditPlace()
-func (hs *handlerService) EditPlace(ctx *gin.Context) {
+//TODO: Edit plae
+//func (hs *handlerService) EditPlace(ctx *gin.Context) {}
+
+// GetPlace()
+func (hs *handlerService) GetPlace(ctx *gin.Context) {
 	var params struct {
-		PlaceID     string   `uri:"placeID" binding:"required,uuid"`
 		Name        string   `uri:"name" binding:"required"`
 		Description string   `uri:"description" binding:"required"`
 		Carousel    []string `uri:"carousel" binding:"required"`
 		AddressText string   `uri:"address_text" binding:"required"`
 		AddressLng  float64  `uri:"address_lng" binding:"required"`
 		AddressLat  float64  `uri:"address_lat" binding:"required"`
-		IsDeleted   bool     `uri:"is_deleted" binding:"required"`
 	}
-	placeID, _ := uuid.Parse(params.PlaceID)
 
 	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
 		ctx.JSON(statusCode, response)
@@ -142,68 +142,6 @@ func (hs *handlerService) EditPlace(ctx *gin.Context) {
 
 		return
 	}
-
-	place, err := hs.pg.GetPlace(ctx, placeID)
-	if err != nil {
-		hs.logger.Error("Error get place", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
-		ctx.Abort()
-
-		return
-	}
-
-	if err = hs.pg.SavePlace(ctx, place); err != nil {
-		hs.logger.Error("Error save place", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
-		ctx.Abort()
-
-		return
-	}
 }
 
-// GetPlace()
-func (hs *handlerService) GetPlace(ctx *gin.Context) {
-	var params struct {
-		PlaceID string `uri:"placeID" binding:"required,uuid"`
-	}
-
-	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
-		ctx.JSON(statusCode, response)
-		ctx.Abort()
-
-		return
-	}
-
-	placeID, _ := uuid.Parse(params.PlaceID)
-
-	place, err := hs.pg.GetPlace(ctx, placeID)
-	if err != nil {
-		hs.logger.Error("Error get place", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
-		ctx.Abort()
-
-		return
-	}
-
-	ctx.JSON(http.StatusOK, models.NewResponse(place))
-	ctx.Abort()
-}
-
-// GetAllPlaces()
-func (hs *handlerService) GetAllPlaces(ctx *gin.Context) {
-	places, err := hs.pg.GetAllPlaces(ctx)
-	if err != nil {
-		hs.logger.Error("Error get all places", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
-		ctx.Abort()
-
-		return
-	}
-
-	ctx.JSON(http.StatusOK, models.NewResponse(places))
-	ctx.Abort()
-}
+//GetAllPlace()
