@@ -12,8 +12,8 @@ type (
 		CompanyID   *uuid.UUID     `json:"company_id,omitempty" db:"company_id"`
 		Name        string         `json:"name" db:"name"`
 		Description string         `json:"description" db:"description"`
-		Carousel    pq.StringArray `json:"carousel" db:"carousel"`
-		Tags        pq.StringArray `json:"tags" db:"tags"`
+		Carousel    pq.StringArray `json:"carousel" db:"carousel" swaggertype:"array,string"`
+		Tags        pq.StringArray `json:"tags" db:"tags" swaggertype:"array,string"`
 		Icon        string         `json:"icon" db:"icon"`
 		StartTime   time.Time      `json:"start_time" db:"start_time"`
 		AddressText string         `json:"address_text" db:"address_text"`

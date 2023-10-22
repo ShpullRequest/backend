@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	_ "github.com/ShpullRequest/backend/docs"
 	"github.com/ShpullRequest/backend/internal/api"
 	"github.com/ShpullRequest/backend/internal/repository"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 	"go.uber.org/zap"
 )
 
@@ -58,6 +61,8 @@ func ConfigureService(apiService api.Service) {
 	apiService.GetRouter().POST("/routes/:routeId/reviews/", hs.NewReviewRoute)
 	apiService.GetRouter().PATCH("/routes/:routeId/", hs.EditRoute)
 	apiService.GetRouter().PATCH("/routes/:routeId/reviews/", hs.EditReviewRoute)
+
+	apiService.GetRouter().GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	apiService.GetRouter().NoRoute(hs.NoRoute)
 	apiService.GetRouter().NoMethod(hs.NoRoute)

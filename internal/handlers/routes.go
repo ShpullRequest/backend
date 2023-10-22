@@ -14,6 +14,22 @@ import (
 	"time"
 )
 
+// NewRoute
+// @Summary Создать новый маршрут
+// @Description Создает новый маршрут с указанными параметрами.
+// @ID new-route
+// @Accept json
+// @Produce json
+// @Param company_id body string false "Уникальный идентификатор компании (опционально)"
+// @Param name body string true "Название маршрута (минимум 6 символов)"
+// @Param description body string true "Описание маршрута (минимум 10 символов)"
+// @Param places body array false "Список мест (опционально)"
+// @Param events body array false "Список событий (опционально)"
+// @Success 200 {object} models.RouteWithGeo
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes [post]
 func (hs *handlerService) NewRoute(ctx *gin.Context) {
 	var params struct {
 		CompanyID   string   `json:"company_id" binding:"omitempty,uuid"`
@@ -90,6 +106,23 @@ func (hs *handlerService) NewRoute(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// EditRoute
+// @Summary Редактировать маршрут
+// @Description Редактирует существующий маршрут с указанными параметрами.
+// @ID edit-route
+// @Accept json
+// @Produce json
+// @Param routeId path string true "Уникальный идентификатор маршрута"
+// @Param name body string false "Название маршрута (минимум 6 символов, опционально)"
+// @Param description body string false "Описание маршрута (минимум 10 символов, опционально)"
+// @Param places body array false "Список мест (опционально)"
+// @Param events body array false "Список событий (опционально)"
+// @Success 200 {object} models.RouteWithGeo
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes/{routeId} [patch]
 func (hs *handlerService) EditRoute(ctx *gin.Context) {
 	var paramsURI struct {
 		RouteID string `uri:"routeId" binding:"required,uuid"`
@@ -194,6 +227,18 @@ func (hs *handlerService) EditRoute(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetRoute
+// @Summary Получить информацию о маршруте
+// @Description Возвращает информацию о маршруте по его уникальному идентификатору.
+// @ID get-route
+// @Accept json
+// @Produce json
+// @Param routeId path string true "Уникальный идентификатор маршрута"
+// @Success 200 {object} models.RouteWithGeo
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes/{routeId} [get]
 func (hs *handlerService) GetRoute(ctx *gin.Context) {
 	var params struct {
 		RouteID string `uri:"routeId" binding:"required,uuid"`
@@ -222,6 +267,17 @@ func (hs *handlerService) GetRoute(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// SearchRoutes
+// @Summary Поиск маршрутов
+// @Description Ищет маршруты по заданному запросу.
+// @ID search-routes
+// @Accept json
+// @Produce json
+// @Param query path string true "Запрос для поиска маршрутов (минимум 2 символа)"
+// @Success 200 {object} []models.RouteWithGeo
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes/search/{query} [get]
 func (hs *handlerService) SearchRoutes(ctx *gin.Context) {
 	var params struct {
 		Query string `uri:"query" binding:"required,min=2"`
@@ -248,6 +304,18 @@ func (hs *handlerService) SearchRoutes(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetCompanyRoutes
+// @Summary Получить маршруты компании
+// @Description Возвращает список маршрутов для указанной компании.
+// @ID get-company-routes
+// @Accept json
+// @Produce json
+// @Param companyId path string true "Уникальный идентификатор компании"
+// @Success 200 {object} []models.RouteWithGeo
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes/company/{companyId} [get]
 func (hs *handlerService) GetCompanyRoutes(ctx *gin.Context) {
 	var params struct {
 		CompanyID string `uri:"companyId" binding:"required,uuid"`
@@ -276,6 +344,15 @@ func (hs *handlerService) GetCompanyRoutes(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetAllRoutes
+// @Summary Получить все маршруты
+// @Description Возвращает список всех маршрутов.
+// @ID get-all-routes
+// @Accept json
+// @Produce json
+// @Success 200 {object} []models.RouteWithGeo
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes [get]
 func (hs *handlerService) GetAllRoutes(ctx *gin.Context) {
 	routes, err := hs.pg.GetAllRoutes(ctx)
 	if err != nil {
@@ -291,6 +368,21 @@ func (hs *handlerService) GetAllRoutes(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// NewReviewRoute
+// @Summary Добавить отзыв о маршруте
+// @Description Добавляет новый отзыв о маршруте с указанными параметрами.
+// @ID new-review-route
+// @Accept json
+// @Produce json
+// @Param routeId path string true "Уникальный идентификатор маршрута"
+// @Param review_text body string true "Текст отзыва (минимум 6 символов)"
+// @Param stars body number true "Оценка (от 1 до 5)"
+// @Success 200 {object} models.ReviewRoute
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 409 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes/{routeId}/reviews [post]
 func (hs *handlerService) NewReviewRoute(ctx *gin.Context) {
 	var paramsURI struct {
 		RouteID string `uri:"routeId" binding:"required,uuid"`
@@ -360,6 +452,20 @@ func (hs *handlerService) NewReviewRoute(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// EditReviewRoute
+// @Summary Редактировать отзыв о маршруте
+// @Description Редактирует существующий отзыв о маршруте с указанными параметрами.
+// @ID edit-review-route
+// @Accept json
+// @Produce json
+// @Param routeId path string true "Уникальный идентификатор маршрута"
+// @Param review_text body string false "Текст отзыва (минимум 6 символов, опционально)"
+// @Param stars body number false "Оценка (от 1 до 5, опционально)"
+// @Success 200 {object} models.ReviewRoute
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes/{routeId}/reviews [patch]
 func (hs *handlerService) EditReviewRoute(ctx *gin.Context) {
 	var paramsURI struct {
 		RouteID string `uri:"routeId" binding:"required,uuid"`
@@ -444,6 +550,17 @@ func (hs *handlerService) EditReviewRoute(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetReviewsRoutes
+// @Summary Получить отзывы о маршруте
+// @Description Возвращает список отзывов о маршруте по его уникальному идентификатору.
+// @ID get-reviews-route
+// @Accept json
+// @Produce json
+// @Param routeId path string true "Уникальный идентификатор маршрута"
+// @Success 200 {object} models.ReviewRoute
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes/{routeId}/reviews [get]
 func (hs *handlerService) GetReviewsRoutes(ctx *gin.Context) {
 	var params struct {
 		RouteID string `uri:"routeId" binding:"required,uuid"`

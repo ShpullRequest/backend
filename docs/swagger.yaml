@@ -1,0 +1,1494 @@
+basePath: /
+definitions:
+  models.Achievements:
+    properties:
+      _id:
+        type: string
+      coins:
+        type: integer
+      description:
+        type: string
+      icon:
+        type: string
+      name:
+        type: string
+    type: object
+  models.Company:
+    properties:
+      _id:
+        type: string
+      description:
+        type: string
+      is_released:
+        type: boolean
+      name:
+        type: string
+      photo_card:
+        type: string
+      user_id:
+        type: string
+    type: object
+  models.ErrorResponse:
+    properties:
+      error: {}
+    type: object
+  models.Event:
+    properties:
+      _id:
+        type: string
+      address_lat:
+        type: number
+      address_lng:
+        type: number
+      address_text:
+        type: string
+      carousel:
+        items:
+          type: string
+        type: array
+      company_id:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      name:
+        type: string
+      start_time:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    type: object
+  models.Place:
+    properties:
+      _id:
+        type: string
+      address_lat:
+        type: number
+      address_lng:
+        type: number
+      address_text:
+        type: string
+      carousel:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      is_deleted:
+        type: boolean
+      name:
+        type: string
+    type: object
+  models.ReviewEvent:
+    properties:
+      _id:
+        type: string
+      created_at:
+        type: string
+      event_id:
+        type: string
+      owner_id:
+        type: string
+      review_text:
+        type: string
+      stars:
+        type: number
+    type: object
+  models.ReviewPlace:
+    properties:
+      _id:
+        type: string
+      created_at:
+        type: string
+      is_deleted:
+        type: boolean
+      owner_id:
+        type: string
+      place_id:
+        type: string
+      review_text:
+        type: string
+      stars:
+        type: number
+    type: object
+  models.ReviewRoute:
+    properties:
+      _id:
+        type: string
+      created_at:
+        type: string
+      is_deleted:
+        type: boolean
+      owner_id:
+        type: string
+      review_text:
+        type: string
+      route_id:
+        type: string
+      stars:
+        type: number
+    type: object
+  models.RouteGeo:
+    properties:
+      object: {}
+      type:
+        type: string
+    type: object
+  models.RouteWithGeo:
+    properties:
+      _id:
+        type: string
+      company_id:
+        type: string
+      description:
+        type: string
+      geo:
+        items:
+          $ref: '#/definitions/models.RouteGeo'
+        type: array
+      name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      _id:
+        type: string
+      is_admin:
+        type: boolean
+      passed_onboarding:
+        type: boolean
+      selected_geo:
+        type: string
+      vk_id:
+        type: integer
+    type: object
+  models.UserGetMeResponse:
+    properties:
+      _id:
+        type: string
+      current_geo:
+        type: string
+      is_admin:
+        type: boolean
+      passed_onboarding:
+        type: boolean
+      selected_geo:
+        type: string
+      vk_id:
+        type: integer
+    type: object
+host: prisma.ssapi.ru
+info:
+  contact: {}
+  description: Travel App - приложение для путешественников
+  title: Prisma
+  version: "1.0"
+paths:
+  /achievements:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех достижений в системе.
+      operationId: get-all-achievements
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Achievements'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить все достижения
+    post:
+      consumes:
+      - application/json
+      description: Создает новое достижение в системе.
+      operationId: create-achievement
+      parameters:
+      - description: Название достижения (минимум 6 символов)
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: Описание достижения (минимум 10 символов)
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Ссылка на иконку достижения (должна быть валидной URL)
+        in: body
+        name: icon
+        required: true
+        schema:
+          type: string
+      - description: Количество монет, присваиваемых за достижение
+        in: body
+        name: coins
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Achievements'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Создать новое достижение
+  /achievements/{achievementId}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о конкретном достижении по его ID.
+      operationId: get-achievement
+      parameters:
+      - description: Уникальный идентификатор достижения (в формате UUID)
+        in: path
+        name: achievementId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Achievements'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить информацию о достижении
+    patch:
+      consumes:
+      - application/json
+      description: Редактирует информацию о существующем достижении.
+      operationId: edit-achievement
+      parameters:
+      - description: Уникальный идентификатор достижения (в формате UUID)
+        in: path
+        name: achievementId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Achievements'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Редактировать достижение
+  /companies:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех компаний в системе.
+      operationId: get-all-companies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Company'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить все компании
+    post:
+      consumes:
+      - application/json
+      description: Создает новую компанию с указанными параметрами.
+      operationId: create-company
+      parameters:
+      - description: Название компании (минимум 6 символов)
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: Описание компании (минимум 12 символов)
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Ссылка на фото компании (должна быть валидной URL)
+        in: body
+        name: photo_card
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Company'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Создать новую компанию
+  /companies/{companyId}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о конкретной компании по её ID.
+      operationId: get-company
+      parameters:
+      - description: Уникальный идентификатор компании (в формате UUID)
+        in: path
+        name: companyId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Company'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить информацию о компании
+    patch:
+      consumes:
+      - application/json
+      description: Подтверждает компанию администратором.
+      operationId: accept-company
+      parameters:
+      - description: Уникальный идентификатор компании (в формате UUID)
+        in: path
+        name: companyId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Company'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Принять компанию
+  /companies/{companyId}/events:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех событий, принадлежащих конкретной компании.
+      operationId: get-company-events
+      parameters:
+      - description: Уникальный идентификатор компании (в формате UUID)
+        in: path
+        name: companyId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Event'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить все события компании
+  /companies/mine:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список компаний, связанных с текущим пользователем.
+      operationId: get-my-companies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Company'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить мои компании
+  /events:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех событий в системе.
+      operationId: get-all-events
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Event'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить все события
+    post:
+      consumes:
+      - application/json
+      description: Создает новое событие с указанными параметрами.
+      operationId: create-event
+      parameters:
+      - description: Уникальный идентификатор компании (в формате UUID)
+        in: body
+        name: company_id
+        schema:
+          type: string
+      - description: Название события (минимум 6 символов)
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: Описание события (минимум 10 символов)
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Массив ссылок на изображения для карусели события
+        in: body
+        name: carousel
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      - description: Массив тегов для события
+        in: body
+        name: tags
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      - description: Ссылка на иконку события (должна быть валидной URL)
+        in: body
+        name: icon
+        required: true
+        schema:
+          type: string
+      - description: Дата и время начала события (в формате 2006-01-02T15:04:05Z07:00)
+        in: body
+        name: start_time
+        required: true
+        schema:
+          type: string
+      - description: Долгота местоположения события
+        in: body
+        name: address_lng
+        required: true
+        schema:
+          type: number
+      - description: Широта местоположения события
+        in: body
+        name: address_lat
+        required: true
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Event'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Создать новое событие
+  /events/{eventId}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о конкретном событии по его ID.
+      operationId: get-event
+      parameters:
+      - description: Уникальный идентификатор события (в формате UUID)
+        in: path
+        name: eventId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Event'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить информацию о событии
+    patch:
+      consumes:
+      - application/json
+      description: Редактирует информацию о существующем событии.
+      operationId: edit-event
+      parameters:
+      - description: Уникальный идентификатор события (в формате UUID)
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Новое название события (минимум 6 символов)
+        in: body
+        name: name
+        schema:
+          type: string
+      - description: Новое описание события (минимум 10 символов)
+        in: body
+        name: description
+        schema:
+          type: string
+      - description: Новый массив ссылок на изображения для карусели события
+        in: body
+        name: carousel
+        schema:
+          items:
+            type: string
+          type: array
+      - description: Новый массив тегов для события
+        in: body
+        name: tags
+        schema:
+          items:
+            type: string
+          type: array
+      - description: Новая ссылка на иконку события (должна быть валидной URL)
+        in: body
+        name: icon
+        schema:
+          type: string
+      - description: Новая дата и время начала события (в формате 2006-01-02T15:04:05Z07:00)
+        in: body
+        name: start_time
+        schema:
+          type: string
+      - description: Новая долгота местоположения события
+        in: body
+        name: address_lng
+        schema:
+          type: number
+      - description: Новая широта местоположения события
+        in: body
+        name: address_lat
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Event'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Редактировать событие
+  /events/{eventId}/reviews:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех отзывов к указанному событию.
+      operationId: get-event-reviews
+      parameters:
+      - description: Уникальный идентификатор события (в формате UUID)
+        in: path
+        name: eventId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReviewEvent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить отзывы к событию
+    patch:
+      consumes:
+      - application/json
+      description: Редактирует существующий отзыв к событию.
+      operationId: edit-event-review
+      parameters:
+      - description: Уникальный идентификатор события (в формате UUID)
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Новый текст отзыва (минимум 6 символов)
+        in: body
+        name: review_text
+        schema:
+          type: string
+      - description: Новая оценка события (от 1 до 5)
+        in: body
+        name: stars
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReviewEvent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Редактировать отзыв к событию
+    post:
+      consumes:
+      - application/json
+      description: Создает новый отзыв к указанному событию.
+      operationId: create-event-review
+      parameters:
+      - description: Уникальный идентификатор события (в формате UUID)
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Текст отзыва (минимум 6 символов)
+        in: body
+        name: review_text
+        required: true
+        schema:
+          type: string
+      - description: Оценка события (от 1 до 5)
+        in: body
+        name: stars
+        required: true
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReviewEvent'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Добавить новый отзыв к событию
+  /events/search/{query}:
+    get:
+      consumes:
+      - application/json
+      description: Ищет события по заданному запросу.
+      operationId: search-events
+      parameters:
+      - description: Поисковый запрос (минимум 2 символа)
+        in: path
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Event'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Поиск событий
+  /places:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех мест.
+      operationId: get-all-places
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Place'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить все места
+    post:
+      consumes:
+      - application/json
+      description: Создает новое место.
+      operationId: create-place
+      parameters:
+      - description: Название места
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: Описание места
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Список изображений для карусели
+        in: body
+        name: carousel
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      - description: Долгота местоположения
+        in: body
+        name: address_lng
+        required: true
+        schema:
+          type: number
+      - description: Широта местоположения
+        in: body
+        name: address_lat
+        required: true
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Place'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Добавить новое место
+  /places/{placeID}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о указанном месте.
+      operationId: get-place
+      parameters:
+      - description: Уникальный идентификатор места (в формате UUID)
+        in: path
+        name: placeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Place'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить место
+    patch:
+      consumes:
+      - application/json
+      description: Редактирует существующее место.
+      operationId: edit-place
+      parameters:
+      - description: Уникальный идентификатор места (в формате UUID)
+        in: path
+        name: placeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Place'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Редактировать место
+  /places/{placeID}/reviews:
+    post:
+      consumes:
+      - application/json
+      description: Создает новый отзыв о указанном месте.
+      operationId: create-place-review
+      parameters:
+      - description: Уникальный идентификатор места (в формате UUID)
+        in: path
+        name: placeId
+        required: true
+        type: string
+      - description: Текст отзыва (минимум 6 символов)
+        in: body
+        name: review_text
+        required: true
+        schema:
+          type: string
+      - description: Оценка места (от 1 до 5)
+        in: body
+        name: stars
+        required: true
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReviewPlace'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Добавить новый отзыв о месте
+  /places/{placeId}/reviews:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех отзывов о указанном месте.
+      operationId: get-place-reviews
+      parameters:
+      - description: Уникальный идентификатор места (в формате UUID)
+        in: path
+        name: placeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReviewPlace'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить отзывы о месте
+  /routes:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех маршрутов.
+      operationId: get-all-routes
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.RouteWithGeo'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить все маршруты
+    post:
+      consumes:
+      - application/json
+      description: Создает новый маршрут с указанными параметрами.
+      operationId: new-route
+      parameters:
+      - description: Уникальный идентификатор компании (опционально)
+        in: body
+        name: company_id
+        schema:
+          type: string
+      - description: Название маршрута (минимум 6 символов)
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      - description: Описание маршрута (минимум 10 символов)
+        in: body
+        name: description
+        required: true
+        schema:
+          type: string
+      - description: Список мест (опционально)
+        in: body
+        name: places
+        schema:
+          type: array
+      - description: Список событий (опционально)
+        in: body
+        name: events
+        schema:
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RouteWithGeo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Создать новый маршрут
+  /routes/{routeId}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о маршруте по его уникальному идентификатору.
+      operationId: get-route
+      parameters:
+      - description: Уникальный идентификатор маршрута
+        in: path
+        name: routeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RouteWithGeo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить информацию о маршруте
+    patch:
+      consumes:
+      - application/json
+      description: Редактирует существующий маршрут с указанными параметрами.
+      operationId: edit-route
+      parameters:
+      - description: Уникальный идентификатор маршрута
+        in: path
+        name: routeId
+        required: true
+        type: string
+      - description: Название маршрута (минимум 6 символов, опционально)
+        in: body
+        name: name
+        schema:
+          type: string
+      - description: Описание маршрута (минимум 10 символов, опционально)
+        in: body
+        name: description
+        schema:
+          type: string
+      - description: Список мест (опционально)
+        in: body
+        name: places
+        schema:
+          type: array
+      - description: Список событий (опционально)
+        in: body
+        name: events
+        schema:
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.RouteWithGeo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Редактировать маршрут
+  /routes/{routeId}/reviews:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список отзывов о маршруте по его уникальному идентификатору.
+      operationId: get-reviews-route
+      parameters:
+      - description: Уникальный идентификатор маршрута
+        in: path
+        name: routeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReviewRoute'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить отзывы о маршруте
+    patch:
+      consumes:
+      - application/json
+      description: Редактирует существующий отзыв о маршруте с указанными параметрами.
+      operationId: edit-review-route
+      parameters:
+      - description: Уникальный идентификатор маршрута
+        in: path
+        name: routeId
+        required: true
+        type: string
+      - description: Текст отзыва (минимум 6 символов, опционально)
+        in: body
+        name: review_text
+        schema:
+          type: string
+      - description: Оценка (от 1 до 5, опционально)
+        in: body
+        name: stars
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReviewRoute'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Редактировать отзыв о маршруте
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новый отзыв о маршруте с указанными параметрами.
+      operationId: new-review-route
+      parameters:
+      - description: Уникальный идентификатор маршрута
+        in: path
+        name: routeId
+        required: true
+        type: string
+      - description: Текст отзыва (минимум 6 символов)
+        in: body
+        name: review_text
+        required: true
+        schema:
+          type: string
+      - description: Оценка (от 1 до 5)
+        in: body
+        name: stars
+        required: true
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReviewRoute'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Добавить отзыв о маршруте
+  /routes/company/{companyId}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список маршрутов для указанной компании.
+      operationId: get-company-routes
+      parameters:
+      - description: Уникальный идентификатор компании
+        in: path
+        name: companyId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.RouteWithGeo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить маршруты компании
+  /routes/search/{query}:
+    get:
+      consumes:
+      - application/json
+      description: Ищет маршруты по заданному запросу.
+      operationId: search-routes
+      parameters:
+      - description: Запрос для поиска маршрутов (минимум 2 символа)
+        in: path
+        name: query
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.RouteWithGeo'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Поиск маршрутов
+  /users/{vkId}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о пользователе по его VK ID.
+      operationId: get-user-by-vk-id
+      parameters:
+      - description: Уникальный идентификатор пользователя в VK
+        in: path
+        name: vkId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить пользователя по VK ID
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о текущем пользователе по его VK ID.
+      operationId: get-me
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserGetMeResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить информацию о текущем пользователе
+    patch:
+      consumes:
+      - application/json
+      description: Редактирует профиль текущего пользователя.
+      operationId: edit-user
+      parameters:
+      - description: Пройдено обучение (опционально)
+        in: body
+        name: passed_onboarding
+        schema:
+          type: boolean
+      - description: Широта выбранного местоположения
+        in: body
+        name: selected_geo_lat
+        schema:
+          type: number
+      - description: Долгота выбранного местоположения
+        in: body
+        name: selected_geo_lot
+        schema:
+          type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Редактировать профиль пользователя
+schemes:
+- https
+swagger: "2.0"

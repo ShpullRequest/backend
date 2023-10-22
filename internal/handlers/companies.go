@@ -11,6 +11,19 @@ import (
 	"net/http"
 )
 
+// NewCompany
+// @Summary Создать новую компанию
+// @Description Создает новую компанию с указанными параметрами.
+// @ID create-company
+// @Accept json
+// @Produce json
+// @Param name body string true "Название компании (минимум 6 символов)"
+// @Param description body string true "Описание компании (минимум 12 символов)"
+// @Param photo_card body string true "Ссылка на фото компании (должна быть валидной URL)"
+// @Success 200 {object} models.Company
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /companies [post]
 func (hs *handlerService) NewCompany(ctx *gin.Context) {
 	var params struct {
 		Name        string `json:"name" binding:"required,min=6"`
@@ -51,6 +64,19 @@ func (hs *handlerService) NewCompany(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// AcceptCompany
+// @Summary Принять компанию
+// @Description Подтверждает компанию администратором.
+// @ID accept-company
+// @Accept json
+// @Produce json
+// @Param companyId path string true "Уникальный идентификатор компании (в формате UUID)"
+// @Success 200 {object} models.Company
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /companies/{companyId} [patch]
 func (hs *handlerService) AcceptCompany(ctx *gin.Context) {
 	var params struct {
 		CompanyID string `uri:"companyId" binding:"required,uuid"`
@@ -107,6 +133,18 @@ func (hs *handlerService) AcceptCompany(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetCompany
+// @Summary Получить информацию о компании
+// @Description Возвращает информацию о конкретной компании по её ID.
+// @ID get-company
+// @Accept json
+// @Produce json
+// @Param companyId path string true "Уникальный идентификатор компании (в формате UUID)"
+// @Success 200 {object} models.Company
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /companies/{companyId} [get]
 func (hs *handlerService) GetCompany(ctx *gin.Context) {
 	var params struct {
 		CompanyID string `uri:"companyId" binding:"required,uuid"`
@@ -152,6 +190,15 @@ func (hs *handlerService) GetCompany(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetMyCompanies
+// @Summary Получить мои компании
+// @Description Возвращает список компаний, связанных с текущим пользователем.
+// @ID get-my-companies
+// @Accept json
+// @Produce json
+// @Success 200 {object} []models.Company
+// @Failure 500 {object} models.ErrorResponse
+// @Router /companies/mine [get]
 func (hs *handlerService) GetMyCompanies(ctx *gin.Context) {
 	vkParams := hs.GetVKParams(ctx)
 
@@ -169,6 +216,15 @@ func (hs *handlerService) GetMyCompanies(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetAllCompanies
+// @Summary Получить все компании
+// @Description Возвращает список всех компаний в системе.
+// @ID get-all-companies
+// @Accept json
+// @Produce json
+// @Success 200 {object} []models.Company
+// @Failure 500 {object} models.ErrorResponse
+// @Router /companies [get]
 func (hs *handlerService) GetAllCompanies(ctx *gin.Context) {
 	companies, err := hs.pg.GetAllCompanies(ctx)
 	if err != nil {

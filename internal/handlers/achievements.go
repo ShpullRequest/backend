@@ -12,6 +12,21 @@ import (
 	"go.uber.org/zap"
 )
 
+// NewAchievement
+// @Summary Создать новое достижение
+// @Description Создает новое достижение в системе.
+// @ID create-achievement
+// @Accept json
+// @Produce json
+// @Param name body string true "Название достижения (минимум 6 символов)"
+// @Param description body string true "Описание достижения (минимум 10 символов)"
+// @Param icon body string true "Ссылка на иконку достижения (должна быть валидной URL)"
+// @Param coins body integer true "Количество монет, присваиваемых за достижение"
+// @Success 200 {object} models.Achievements
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /achievements [post]
 func (hs *handlerService) NewAchievement(ctx *gin.Context) {
 	var params struct {
 		Name        string `json:"name" binding:"required,min=6"`
@@ -65,6 +80,18 @@ func (hs *handlerService) NewAchievement(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetAchievement
+// @Summary Получить информацию о достижении
+// @Description Возвращает информацию о конкретном достижении по его ID.
+// @ID get-achievement
+// @Accept json
+// @Produce json
+// @Param achievementId path string true "Уникальный идентификатор достижения (в формате UUID)"
+// @Success 200 {object} models.Achievements
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /achievements/{achievementId} [get]
 func (hs *handlerService) GetAchievement(ctx *gin.Context) {
 	var params struct {
 		AchievementID string `uri:"achievementId" blinding:"required,uuid"`
@@ -93,6 +120,19 @@ func (hs *handlerService) GetAchievement(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// EditAchievement
+// @Summary Редактировать достижение
+// @Description Редактирует информацию о существующем достижении.
+// @ID edit-achievement
+// @Accept json
+// @Produce json
+// @Param achievementId path string true "Уникальный идентификатор достижения (в формате UUID)"
+// @Success 200 {object} models.Achievements
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /achievements/{achievementId} [patch]
 func (hs *handlerService) EditAchievement(ctx *gin.Context) {
 	var params struct {
 		AchievementID string `uri:"achievementId" binding:"required,uuid"`
@@ -143,6 +183,15 @@ func (hs *handlerService) EditAchievement(ctx *gin.Context) {
 	}
 }
 
+// GetAllAchievements
+// @Summary Получить все достижения
+// @Description Возвращает список всех достижений в системе.
+// @ID get-all-achievements
+// @Accept json
+// @Produce json
+// @Success 200 {object} []models.Achievements
+// @Failure 500 {object} models.ErrorResponse
+// @Router /achievements [get]
 func (hs *handlerService) GetAllAchievements(ctx *gin.Context) {
 	achievements, err := hs.pg.GetAllAchievements(ctx)
 	if err != nil {

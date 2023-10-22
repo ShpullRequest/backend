@@ -12,7 +12,7 @@ type (
 		ID          uuid.UUID      `json:"_id" db:"id"`
 		Name        string         `json:"name" db:"name"`
 		Description string         `json:"description" db:"description"`
-		Carousel    pq.StringArray `json:"carousel" db:"carousel"`
+		Carousel    pq.StringArray `json:"carousel" db:"carousel" swaggertype:"array,string"`
 		AddressText string         `json:"address_text" db:"address_text"`
 		AddressLng  float64        `json:"address_lng" db:"address_lng"`
 		AddressLat  float64        `json:"address_lat" db:"address_lat"`
