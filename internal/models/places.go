@@ -4,18 +4,19 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 type (
 	Place struct {
-		ID          uuid.UUID `json:"_id" db:"id"`
-		Name        string    `json:"name" db:"name"`
-		Description string    `json:"description" db:"description"`
-		Carousel    []string  `json:"carousel" db:"carousel"`
-		AddressText string    `json:"address_text" db:"address_text"`
-		AddressLng  float64   `json:"address_lng" db:"address_lng"`
-		AddressLat  float64   `json:"address_lat" db:"address_lat"`
-		IsDeleted   bool      `json:"is_deleted" db:"is_deleted"`
+		ID          uuid.UUID      `json:"_id" db:"id"`
+		Name        string         `json:"name" db:"name"`
+		Description string         `json:"description" db:"description"`
+		Carousel    pq.StringArray `json:"carousel" db:"carousel"`
+		AddressText string         `json:"address_text" db:"address_text"`
+		AddressLng  float64        `json:"address_lng" db:"address_lng"`
+		AddressLat  float64        `json:"address_lat" db:"address_lat"`
+		IsDeleted   bool           `json:"is_deleted" db:"is_deleted"`
 	}
 
 	ReviewPlace struct {
