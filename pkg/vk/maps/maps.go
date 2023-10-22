@@ -56,7 +56,32 @@ func (m *vkMaps) GetAddressByGeo(lng, lat float64) (string, error) {
 	if len(searchResult.Results) < 1 {
 		return "", errors.New("no address")
 	}
-	addressDetails := searchResult.Results[0].AddressDetails
+
+	return m.parseAddress(searchResult), nil
+}
+func (m *vkMaps) GetAddressByGeoQ(q string) (string, error) {
+	params := url.Values{}
+	params.Set("api_key", m.apiKey)
+	params.Set("q", q)
+
+	response, err := m.client.R().
+		SetQueryParamsFromValues(params).
+		SetResult(&SearchResponse{}).
+		Get("search")
+	if err != nil {
+		return "", err
+	}
+
+	searchResult := response.Result().(*SearchResponse)
+	if len(searchResult.Results) < 1 {
+		return "", errors.New("no address")
+	}
+
+	return m.parseAddress(searchResult), nil
+}
+
+func (m *vkMaps) parseAddress(result *SearchResponse) string {
+	addressDetails := result.Results[0].AddressDetails
 
 	var texts []string
 	if addressDetails.Country != "" {
@@ -75,5 +100,5 @@ func (m *vkMaps) GetAddressByGeo(lng, lat float64) (string, error) {
 		texts = append(texts, addressDetails.Building)
 	}
 
-	return strings.Join(texts, ", "), nil
+	return strings.Join(texts, ", ")
 }

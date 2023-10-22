@@ -65,13 +65,6 @@ func (p *Pg) GetAllEvents(ctx context.Context) ([]models.Event, error) {
 	return events, err
 }
 
-func (p *Pg) GetEventByCompanyID(ctx context.Context, eventID uuid.UUID, companyID uuid.UUID) (*models.Event, error) {
-	var event models.Event
-	err := p.db.GetContext(ctx, &event, "SELECT * FROM events WHERE id = $1 AND company_id = $2", eventID, companyID)
-
-	return &event, err
-}
-
 func (p *Pg) GetAllEventsByCompanyID(ctx context.Context, companyID uuid.UUID) ([]models.Event, error) {
 	var events []models.Event
 	err := p.db.SelectContext(ctx, &events, "SELECT * FROM events WHERE company_id = $1", companyID)

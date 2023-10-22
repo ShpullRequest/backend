@@ -17,6 +17,7 @@ type (
 	UserGetMeResponse struct {
 		*User
 		CurrentGeo string `json:"current_geo"`
+		GeoText    string `json:"geo_text"`
 	}
 
 	UserAchievementsRel struct {
