@@ -13,6 +13,7 @@ type (
 		Name        string         `json:"name" db:"name"`
 		Description string         `json:"description" db:"description"`
 		Carousel    pq.StringArray `json:"carousel" db:"carousel"`
+		Tags        pq.StringArray `json:"tags" db:"tags"`
 		Icon        string         `json:"icon" db:"icon"`
 		StartTime   time.Time      `json:"start_time" db:"start_time"`
 		AddressText string         `json:"address_text" db:"address_text"`
@@ -39,7 +40,7 @@ type (
 		ReviewText string    `json:"review_text" db:"review_text"`
 		Stars      float64   `json:"stars" db:"stars"`
 		CreatedAt  time.Time `json:"created_at" db:"created_at"`
-		IsDeleted  bool      `json:"is_deleted" db:"is_deleted"`
+		IsDeleted  bool      `json:"-" db:"is_deleted"`
 	}
 )
 

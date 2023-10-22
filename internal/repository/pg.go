@@ -34,5 +34,7 @@ func (p *Pg) IsError(f errorFunc, err error) bool {
 		return false
 	}
 
+	p.logger.Info("pgerror", zap.Any("pgerror", pgError))
+
 	return f(pgError.Code)
 }

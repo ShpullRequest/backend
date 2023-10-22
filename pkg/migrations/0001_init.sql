@@ -48,6 +48,7 @@
         name VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
         carousel TEXT[],
+        tags TEXT[],
         icon TEXT,
         start_time TIMESTAMPTZ NOT NULL,
         address_text TEXT NOT NULL,
@@ -105,6 +106,7 @@
     );
     CREATE INDEX idx_reviews_events_owner ON reviews_events (owner_id);
     CREATE INDEX idx_reviews_events_route ON reviews_events (event_id);
+    ALTER TABLE reviews_events ADD CONSTRAINT unique_owner_id_route_id UNIQUE (owner_id, event_id);
 
 
 -- Фильтры
