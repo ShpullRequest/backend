@@ -171,6 +171,8 @@ definitions:
         type: string
       current_geo:
         type: string
+      geo_text:
+        type: string
       is_admin:
         type: boolean
       passed_onboarding:
@@ -193,6 +195,12 @@ paths:
       - application/json
       description: Возвращает список всех достижений в системе.
       operationId: get-all-achievements
+      parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -213,6 +221,11 @@ paths:
       description: Создает новое достижение в системе.
       operationId: create-achievement
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Название достижения (минимум 6 символов)
         in: body
         name: name
@@ -264,6 +277,11 @@ paths:
       description: Возвращает информацию о конкретном достижении по его ID.
       operationId: get-achievement
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор достижения (в формате UUID)
         in: path
         name: achievementId
@@ -295,11 +313,36 @@ paths:
       description: Редактирует информацию о существующем достижении.
       operationId: edit-achievement
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор достижения (в формате UUID)
         in: path
         name: achievementId
         required: true
         type: string
+      - description: Название достижения (минимум 6 символов)
+        in: body
+        name: name
+        schema:
+          type: string
+      - description: Описание достижения (минимум 10 символов)
+        in: body
+        name: description
+        schema:
+          type: string
+      - description: Ссылка на иконку достижения (должна быть в формате URL)
+        in: body
+        name: icon
+        schema:
+          type: string
+      - description: Количество монет за достижение
+        in: body
+        name: coins
+        schema:
+          type: integer
       produces:
       - application/json
       responses:
@@ -330,6 +373,12 @@ paths:
       - application/json
       description: Возвращает список всех компаний в системе.
       operationId: get-all-companies
+      parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -396,6 +445,11 @@ paths:
       description: Возвращает информацию о конкретной компании по её ID.
       operationId: get-company
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор компании (в формате UUID)
         in: path
         name: companyId
@@ -427,6 +481,11 @@ paths:
       description: Подтверждает компанию администратором.
       operationId: accept-company
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор компании (в формате UUID)
         in: path
         name: companyId
@@ -463,6 +522,11 @@ paths:
       description: Возвращает список всех событий, принадлежащих конкретной компании.
       operationId: get-company-events
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор компании (в формате UUID)
         in: path
         name: companyId
@@ -492,6 +556,12 @@ paths:
       - application/json
       description: Возвращает список компаний, связанных с текущим пользователем.
       operationId: get-my-companies
+      parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -512,6 +582,12 @@ paths:
       - application/json
       description: Возвращает список всех событий в системе.
       operationId: get-all-events
+      parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -532,6 +608,11 @@ paths:
       description: Создает новое событие с указанными параметрами.
       operationId: create-event
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор компании (в формате UUID)
         in: body
         name: company_id
@@ -612,6 +693,11 @@ paths:
       description: Возвращает информацию о конкретном событии по его ID.
       operationId: get-event
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор события (в формате UUID)
         in: path
         name: eventId
@@ -643,6 +729,11 @@ paths:
       description: Редактирует информацию о существующем событии.
       operationId: edit-event
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор события (в формате UUID)
         in: path
         name: eventId
@@ -723,6 +814,11 @@ paths:
       description: Возвращает список всех отзывов к указанному событию.
       operationId: get-event-reviews
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор события (в формате UUID)
         in: path
         name: eventId
@@ -750,6 +846,11 @@ paths:
       description: Редактирует существующий отзыв к событию.
       operationId: edit-event-review
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор события (в формате UUID)
         in: path
         name: eventId
@@ -795,6 +896,11 @@ paths:
       description: Создает новый отзыв к указанному событию.
       operationId: create-event-review
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор события (в формате UUID)
         in: path
         name: eventId
@@ -847,6 +953,11 @@ paths:
       description: Ищет события по заданному запросу.
       operationId: search-events
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Поисковый запрос (минимум 2 символа)
         in: path
         name: query
@@ -876,6 +987,12 @@ paths:
       - application/json
       description: Возвращает список всех мест.
       operationId: get-all-places
+      parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -896,6 +1013,11 @@ paths:
       description: Создает новое место.
       operationId: create-place
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Название места
         in: body
         name: name
@@ -951,6 +1073,11 @@ paths:
       description: Возвращает информацию о указанном месте.
       operationId: get-place
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор места (в формате UUID)
         in: path
         name: placeId
@@ -978,6 +1105,11 @@ paths:
       description: Редактирует существующее место.
       operationId: edit-place
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор места (в формате UUID)
         in: path
         name: placeId
@@ -1006,6 +1138,11 @@ paths:
       description: Создает новый отзыв о указанном месте.
       operationId: create-place-review
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор места (в формате UUID)
         in: path
         name: placeId
@@ -1046,6 +1183,11 @@ paths:
       description: Возвращает список всех отзывов о указанном месте.
       operationId: get-place-reviews
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор места (в формате UUID)
         in: path
         name: placeId
@@ -1057,7 +1199,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ReviewPlace'
+            items:
+              $ref: '#/definitions/models.ReviewPlace'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -1073,6 +1217,12 @@ paths:
       - application/json
       description: Возвращает список всех маршрутов.
       operationId: get-all-routes
+      parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1093,6 +1243,11 @@ paths:
       description: Создает новый маршрут с указанными параметрами.
       operationId: new-route
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор компании (опционально)
         in: body
         name: company_id
@@ -1147,6 +1302,11 @@ paths:
       description: Возвращает информацию о маршруте по его уникальному идентификатору.
       operationId: get-route
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор маршрута
         in: path
         name: routeId
@@ -1178,6 +1338,11 @@ paths:
       description: Редактирует существующий маршрут с указанными параметрами.
       operationId: edit-route
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор маршрута
         in: path
         name: routeId
@@ -1234,6 +1399,11 @@ paths:
       description: Возвращает список отзывов о маршруте по его уникальному идентификатору.
       operationId: get-reviews-route
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор маршрута
         in: path
         name: routeId
@@ -1261,6 +1431,11 @@ paths:
       description: Редактирует существующий отзыв о маршруте с указанными параметрами.
       operationId: edit-review-route
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор маршрута
         in: path
         name: routeId
@@ -1302,6 +1477,11 @@ paths:
       description: Добавляет новый отзыв о маршруте с указанными параметрами.
       operationId: new-review-route
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор маршрута
         in: path
         name: routeId
@@ -1350,6 +1530,11 @@ paths:
       description: Возвращает список маршрутов для указанной компании.
       operationId: get-company-routes
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Уникальный идентификатор компании
         in: path
         name: companyId
@@ -1384,6 +1569,11 @@ paths:
       description: Ищет маршруты по заданному запросу.
       operationId: search-routes
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Запрос для поиска маршрутов (минимум 2 символа)
         in: path
         name: query
@@ -1407,40 +1597,18 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Поиск маршрутов
-  /users/{vkId}:
-    get:
-      consumes:
-      - application/json
-      description: Возвращает информацию о пользователе по его VK ID.
-      operationId: get-user-by-vk-id
-      parameters:
-      - description: Уникальный идентификатор пользователя в VK
-        in: path
-        name: vkId
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Получить пользователя по VK ID
-  /users/me:
+  /users:
     get:
       consumes:
       - application/json
       description: Возвращает информацию о текущем пользователе по его VK ID.
       operationId: get-me
+      parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -1463,6 +1631,11 @@ paths:
       description: Редактирует профиль текущего пользователя.
       operationId: edit-user
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Пройдено обучение (опционально)
         in: body
         name: passed_onboarding
@@ -1494,6 +1667,39 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Редактировать профиль пользователя
+  /users/{vkId}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о пользователе по его VK ID.
+      operationId: get-user-by-vk-id
+      parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Уникальный идентификатор пользователя в VK
+        in: path
+        name: vkId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить пользователя по VK ID
 schemes:
 - https
 swagger: "2.0"
