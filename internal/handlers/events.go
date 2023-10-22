@@ -22,6 +22,7 @@ import (
 // @ID create-event
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param company_id body string false "Уникальный идентификатор компании (в формате UUID)"
 // @Param name body string true "Название события (минимум 6 символов)"
 // @Param description body string true "Описание события (минимум 10 символов)"
@@ -146,6 +147,7 @@ func (hs *handlerService) NewEvent(ctx *gin.Context) {
 // @ID get-event
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
 // @Success 200 {object} models.Event
 // @Failure 400 {object} models.ErrorResponse
@@ -190,6 +192,7 @@ func (hs *handlerService) GetEvent(ctx *gin.Context) {
 // @ID edit-event
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
 // @Param name body string false "Новое название события (минимум 6 символов)"
 // @Param description body string false "Новое описание события (минимум 10 символов)"
@@ -315,7 +318,7 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 	if params.AddressLng != 0 && params.AddressLat != 0 {
 		address, err := maps.New(config.Config).GetAddressByGeo(params.AddressLng, params.AddressLat)
 		if err != nil {
-			hs.logger.Error("Error get company by id", zap.Error(err))
+			hs.logger.Error("Error get address", zap.Error(err))
 
 			ctx.JSON(http.StatusBadGateway, models.NewErrorResponse(errs.NewBadGateway("Internal server error on vk maps")))
 			ctx.Abort()
@@ -347,6 +350,7 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 // @ID get-company-events
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param companyId path string true "Уникальный идентификатор компании (в формате UUID)"
 // @Success 200 {object} []models.Event
 // @Failure 400 {object} models.ErrorResponse
@@ -386,6 +390,7 @@ func (hs *handlerService) GetCompanyEvents(ctx *gin.Context) {
 // @ID search-events
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param query path string true "Поисковый запрос (минимум 2 символа)"
 // @Success 200 {object} []models.Event
 // @Failure 400 {object} models.ErrorResponse
@@ -423,6 +428,7 @@ func (hs *handlerService) SearchEvents(ctx *gin.Context) {
 // @ID get-all-events
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Success 200 {object} []models.Event
 // @Failure 500 {object} models.ErrorResponse
 // @Router /events [get]
@@ -447,6 +453,7 @@ func (hs *handlerService) GetAllEvents(ctx *gin.Context) {
 // @ID create-event-review
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
 // @Param review_text body string true "Текст отзыва (минимум 6 символов)"
 // @Param stars body float64 true "Оценка события (от 1 до 5)"
@@ -532,6 +539,7 @@ func (hs *handlerService) NewReviewEvent(ctx *gin.Context) {
 // @ID edit-event-review
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
 // @Param review_text body string false "Новый текст отзыва (минимум 6 символов)"
 // @Param stars body float64 false "Новая оценка события (от 1 до 5)"
@@ -631,6 +639,7 @@ func (hs *handlerService) EditReviewsEvent(ctx *gin.Context) {
 // @ID get-event-reviews
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
 // @Success 200 {object} models.ReviewEvent
 // @Failure 400 {object} models.ErrorResponse

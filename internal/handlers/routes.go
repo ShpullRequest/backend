@@ -20,6 +20,7 @@ import (
 // @ID new-route
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param company_id body string false "Уникальный идентификатор компании (опционально)"
 // @Param name body string true "Название маршрута (минимум 6 символов)"
 // @Param description body string true "Описание маршрута (минимум 10 символов)"
@@ -112,6 +113,7 @@ func (hs *handlerService) NewRoute(ctx *gin.Context) {
 // @ID edit-route
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param routeId path string true "Уникальный идентификатор маршрута"
 // @Param name body string false "Название маршрута (минимум 6 символов, опционально)"
 // @Param description body string false "Описание маршрута (минимум 10 символов, опционально)"
@@ -233,6 +235,7 @@ func (hs *handlerService) EditRoute(ctx *gin.Context) {
 // @ID get-route
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param routeId path string true "Уникальный идентификатор маршрута"
 // @Success 200 {object} models.RouteWithGeo
 // @Failure 400 {object} models.ErrorResponse
@@ -273,6 +276,7 @@ func (hs *handlerService) GetRoute(ctx *gin.Context) {
 // @ID search-routes
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param query path string true "Запрос для поиска маршрутов (минимум 2 символа)"
 // @Success 200 {object} []models.RouteWithGeo
 // @Failure 400 {object} models.ErrorResponse
@@ -310,6 +314,7 @@ func (hs *handlerService) SearchRoutes(ctx *gin.Context) {
 // @ID get-company-routes
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param companyId path string true "Уникальный идентификатор компании"
 // @Success 200 {object} []models.RouteWithGeo
 // @Failure 400 {object} models.ErrorResponse
@@ -350,6 +355,7 @@ func (hs *handlerService) GetCompanyRoutes(ctx *gin.Context) {
 // @ID get-all-routes
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Success 200 {object} []models.RouteWithGeo
 // @Failure 500 {object} models.ErrorResponse
 // @Router /routes [get]
@@ -374,6 +380,7 @@ func (hs *handlerService) GetAllRoutes(ctx *gin.Context) {
 // @ID new-review-route
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param routeId path string true "Уникальный идентификатор маршрута"
 // @Param review_text body string true "Текст отзыва (минимум 6 символов)"
 // @Param stars body number true "Оценка (от 1 до 5)"
@@ -458,6 +465,7 @@ func (hs *handlerService) NewReviewRoute(ctx *gin.Context) {
 // @ID edit-review-route
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param routeId path string true "Уникальный идентификатор маршрута"
 // @Param review_text body string false "Текст отзыва (минимум 6 символов, опционально)"
 // @Param stars body number false "Оценка (от 1 до 5, опционально)"
@@ -556,6 +564,7 @@ func (hs *handlerService) EditReviewRoute(ctx *gin.Context) {
 // @ID get-reviews-route
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param routeId path string true "Уникальный идентификатор маршрута"
 // @Success 200 {object} models.ReviewRoute
 // @Failure 400 {object} models.ErrorResponse

@@ -3,6 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"errors"
+	"github.com/jackc/pgerrcode"
+	"math"
 	"net/http"
 	"time"
 
@@ -21,6 +23,7 @@ import (
 // @ID create-place
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param name body string true "Название места"
 // @Param description body string true "Описание места"
 // @Param carousel body []string true "Список изображений для карусели"
@@ -32,11 +35,11 @@ import (
 // @Router /places [post]
 func (hs *handlerService) NewPlace(ctx *gin.Context) {
 	var params struct {
-		Name        string   `uri:"name" binding:"required"`
-		Description string   `uri:"description" binding:"required"`
-		Carousel    []string `uri:"carousel" binding:"required"`
-		AddressLng  float64  `uri:"address_lng" binding:"required"`
-		AddressLat  float64  `uri:"address_lat" binding:"required"`
+		Name        string   `json:"name" binding:"required,min=6"`
+		Description string   `json:"description" binding:"required,min=10"`
+		Carousel    []string `json:"carousel" binding:"required"`
+		AddressLng  float64  `json:"address_lng" binding:"required"`
+		AddressLat  float64  `json:"address_lat" binding:"required"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
@@ -48,7 +51,7 @@ func (hs *handlerService) NewPlace(ctx *gin.Context) {
 
 	addressText, err := maps.New(config.Config).GetAddressByGeo(params.AddressLng, params.AddressLat)
 	if err != nil {
-		hs.logger.Error("Error get company by id", zap.Error(err))
+		hs.logger.Error("Error get address", zap.Error(err))
 
 		ctx.JSON(http.StatusBadGateway, models.NewErrorResponse(errs.NewBadGateway("Internal server error on vk maps")))
 		ctx.Abort()
@@ -83,16 +86,31 @@ func (hs *handlerService) NewPlace(ctx *gin.Context) {
 // @ID edit-place
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
 // @Success 200 {object} models.Place
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /places/{placeID} [patch]
 func (hs *handlerService) EditPlace(ctx *gin.Context) {
-	var params struct {
+	var paramsURI struct {
 		PlaceID string `uri:"placeId" binding:"required,uuid"`
 	}
-	placeID, _ := uuid.Parse(params.PlaceID)
+
+	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &paramsURI); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+
+	var params struct {
+		Name        string   `json:"name" binding:"omitempty,min=6"`
+		Description string   `json:"description" binding:"omitempty,min=10"`
+		Carousel    []string `json:"carousel"`
+		AddressLng  float64  `json:"address_lng"`
+		AddressLat  float64  `json:"address_lat"`
+	}
 
 	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
 		ctx.JSON(statusCode, response)
@@ -101,14 +119,43 @@ func (hs *handlerService) EditPlace(ctx *gin.Context) {
 		return
 	}
 
+	placeID, _ := uuid.Parse(paramsURI.PlaceID)
 	place, err := hs.pg.GetPlace(ctx, placeID)
 	if err != nil {
-		hs.logger.Error("Error get place", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		if errors.Is(err, sql.ErrNoRows) {
+			ctx.JSON(http.StatusNotFound, models.NewErrorResponse(errs.NewNotFound("Place not found")))
+		} else {
+			hs.logger.Error("Error get place", zap.Error(err))
+			ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		}
 		ctx.Abort()
 
 		return
+	}
+
+	if params.Name != "" {
+		place.Name = params.Name
+	}
+	if params.Description != "" {
+		place.Description = params.Description
+	}
+	if len(params.Carousel) > 0 {
+		place.Carousel = params.Carousel
+	}
+	if params.AddressLng != 0 && params.AddressLat != 0 {
+		address, err := maps.New(config.Config).GetAddressByGeo(params.AddressLng, params.AddressLat)
+		if err != nil {
+			hs.logger.Error("Error get address", zap.Error(err))
+
+			ctx.JSON(http.StatusBadGateway, models.NewErrorResponse(errs.NewBadGateway("Internal server error on vk maps")))
+			ctx.Abort()
+
+			return
+		}
+
+		place.AddressText = address
+		place.AddressLng = params.AddressLng
+		place.AddressLat = params.AddressLat
 	}
 
 	if err = hs.pg.SavePlace(ctx, place); err != nil {
@@ -119,6 +166,8 @@ func (hs *handlerService) EditPlace(ctx *gin.Context) {
 
 		return
 	}
+
+	ctx.JSON(http.StatusOK, models.NewResponse(place))
 }
 
 // GetPlace
@@ -127,6 +176,7 @@ func (hs *handlerService) EditPlace(ctx *gin.Context) {
 // @ID get-place
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
 // @Success 200 {object} models.Place
 // @Failure 400 {object} models.ErrorResponse
@@ -145,8 +195,8 @@ func (hs *handlerService) GetPlace(ctx *gin.Context) {
 	}
 
 	placeID, _ := uuid.Parse(params.PlaceID)
-
 	place, err := hs.pg.GetPlace(ctx, placeID)
+
 	if err != nil {
 		hs.logger.Error("Error get place", zap.Error(err))
 
@@ -160,12 +210,51 @@ func (hs *handlerService) GetPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// SearchPlaces
+// @Summary Поиск мест
+// @Description Ищет места по заданному запросу.
+// @ID search-routes
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Строка авторизации"
+// @Param query path string true "Запрос для поиска мест (минимум 2 символа)"
+// @Success 200 {object} []models.Place
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes/search/{query} [get]
+func (hs *handlerService) SearchPlaces(ctx *gin.Context) {
+	var params struct {
+		Query string `uri:"query" binding:"required,min=2"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+
+	places, err := hs.pg.SearchPlace(ctx, params.Query)
+	if err != nil {
+		hs.logger.Error("Error search routes", zap.Error(err))
+
+		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		ctx.Abort()
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, models.NewResponse(places))
+	ctx.Abort()
+}
+
 // GetAllPlaces
 // @Summary Получить все места
 // @Description Возвращает список всех мест.
 // @ID get-all-places
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Success 200 {object} []models.Place
 // @Failure 500 {object} models.ErrorResponse
 // @Router /places [get]
@@ -190,6 +279,7 @@ func (hs *handlerService) GetAllPlaces(ctx *gin.Context) {
 // @ID create-place-review
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
 // @Param review_text body string true "Текст отзыва (минимум 6 символов)"
 // @Param stars body float64 true "Оценка места (от 1 до 5)"
@@ -198,12 +288,20 @@ func (hs *handlerService) GetAllPlaces(ctx *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /places/{placeID}/reviews [post]
 func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
-	vkParams := hs.GetVKParams(ctx)
+	var paramsURI struct {
+		PlaceID string `uri:"placeId" binding:"required,uuid"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &paramsURI); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
 
 	var params struct {
-		PlaceID    string  `uri:"placeID" binding:"required,uuid"`
-		ReviewText string  `uri:"review_text" binding:"required"`
-		Stars      float64 `uri:"stars" binding:"required"`
+		ReviewText string  `json:"review_text" binding:"required,min=6"`
+		Stars      float64 `json:"stars" binding:"required"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
@@ -212,6 +310,7 @@ func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 
 		return
 	}
+	vkParams := hs.GetVKParams(ctx)
 
 	user, err := hs.pg.GetUserByVkID(ctx, int64(vkParams.VkUserID))
 	if err != nil {
@@ -223,7 +322,16 @@ func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 		return
 	}
 
-	placeID, _ := uuid.Parse(params.PlaceID)
+	if params.Stars < 1 || params.Stars > 5 {
+		ctx.JSON(http.StatusBadRequest, models.NewErrorResponse(errs.NewBadRequest("Field validation for \"Stars\" failed on the 'min=1,max=5' tag.")))
+		ctx.Abort()
+
+		return
+	} else {
+		params.Stars = math.Round(params.Stars)
+	}
+
+	placeID, _ := uuid.Parse(paramsURI.PlaceID)
 	reviewPlace, err := hs.pg.NewReviewPlace(ctx, models.ReviewPlace{
 		OwnerID:    user.ID,
 		PlaceID:    placeID,
@@ -233,9 +341,12 @@ func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		hs.logger.Error("Error new review place", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		if hs.pg.IsError(pgerrcode.IsIntegrityConstraintViolation, err) {
+			ctx.JSON(http.StatusConflict, models.NewErrorResponse(errs.NewConflict("You have already added a review to this place")))
+		} else {
+			hs.logger.Error("Error new review event", zap.Error(err))
+			ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		}
 		ctx.Abort()
 
 		return
@@ -245,14 +356,114 @@ func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// EditReviewPlace
+// @Summary Редактировать отзыв о месте
+// @Description Редактирует существующий отзыв о месте с указанными параметрами.
+// @ID edit-review-route
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Строка авторизации"
+// @Param routeId path string true "Уникальный идентификатор места"
+// @Param review_text body string false "Текст отзыва (минимум 6 символов, опционально)"
+// @Param stars body number false "Оценка (от 1 до 5, опционально)"
+// @Success 200 {object} models.ReviewPlace
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /routes/{routeId}/reviews [patch]
+func (hs *handlerService) EditReviewPlace(ctx *gin.Context) {
+	var paramsURI struct {
+		RouteID string `uri:"routeId" binding:"required,uuid"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &paramsURI); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+
+	var params struct {
+		ReviewText string  `json:"review_text"`
+		Stars      float64 `json:"stars"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+	vkParams := hs.GetVKParams(ctx)
+
+	user, err := hs.pg.GetUserByVkID(ctx, int64(vkParams.VkUserID))
+	if err != nil {
+		hs.logger.Debug("Error get user", zap.Error(err))
+
+		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		ctx.Abort()
+
+		return
+	}
+
+	routeID, _ := uuid.Parse(paramsURI.RouteID)
+	reviewRoute, err := hs.pg.GetReviewRoute(ctx, user.ID, routeID)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			ctx.JSON(http.StatusNotFound, models.NewErrorResponse(errs.NewNotFound("Review route not found")))
+		} else {
+			hs.logger.Error("Error get event", zap.Error(err))
+			ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		}
+		ctx.Abort()
+
+		return
+	}
+
+	if params.ReviewText != "" {
+		if len(params.ReviewText) < 6 {
+			ctx.JSON(http.StatusBadRequest, models.NewErrorResponse(errs.NewBadRequest("Field validation for \"ReviewText\" failed on the 'min=6' tag.")))
+			ctx.Abort()
+
+			return
+		}
+
+		reviewRoute.ReviewText = params.ReviewText
+	}
+	if params.Stars != 0 {
+		if params.Stars < 1 || params.Stars > 5 {
+			ctx.JSON(http.StatusBadRequest, models.NewErrorResponse(errs.NewBadRequest("Field validation for \"Stars\" failed on the 'min=1,max=5' tag.")))
+			ctx.Abort()
+
+			return
+		} else {
+			reviewRoute.Stars = math.Round(params.Stars)
+		}
+	}
+
+	if err = hs.pg.SaveReviewRoute(ctx, reviewRoute); err != nil {
+		hs.logger.Debug("Error save review route", zap.Error(err))
+
+		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		ctx.Abort()
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, models.NewResponse(reviewRoute))
+	ctx.Abort()
+}
+
 // GetReviewsPlace
 // @Summary Получить отзывы о месте
 // @Description Возвращает список всех отзывов о указанном месте.
 // @ID get-place-reviews
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
-// @Success 200 {object} models.ReviewPlace
+// @Success 200 {object} []models.ReviewPlace
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /places/{placeId}/reviews [get]
@@ -261,8 +472,15 @@ func (hs *handlerService) GetReviewsPlace(ctx *gin.Context) {
 		PlaceID string `uri:"placeId" binding:"required,uuid"`
 	}
 
+	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+
 	placeID, _ := uuid.Parse(params.PlaceID)
-	reviews, err := hs.pg.GetReviewsPlace(ctx, placeID)
+	places, err := hs.pg.GetReviewsEvent(ctx, placeID)
 
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		hs.logger.Debug("Error get reviews", zap.Error(err))
@@ -273,7 +491,6 @@ func (hs *handlerService) GetReviewsPlace(ctx *gin.Context) {
 		return
 	}
 
-	hs.logger.Debug("Success get reviews", zap.Any("Reviews", reviews))
-	ctx.JSON(http.StatusOK, models.NewResponse(reviews))
+	ctx.JSON(http.StatusOK, models.NewResponse(places))
 	ctx.Abort()
 }
