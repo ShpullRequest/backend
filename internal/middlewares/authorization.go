@@ -14,6 +14,10 @@ import (
 )
 
 func (ms *middlewareService) Authorization(ctx *gin.Context) {
+	if strings.HasPrefix(ctx.Request.RequestURI, "/swagger/") {
+		return
+	}
+
 	authString := ctx.GetHeader("Authorization")
 	authString = strings.ReplaceAll(authString, "Bearer ", "")
 

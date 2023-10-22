@@ -16,6 +16,25 @@ import (
 	"time"
 )
 
+// NewEvent
+// @Summary Создать новое событие
+// @Description Создает новое событие с указанными параметрами.
+// @ID create-event
+// @Accept json
+// @Produce json
+// @Param company_id body string false "Уникальный идентификатор компании (в формате UUID)"
+// @Param name body string true "Название события (минимум 6 символов)"
+// @Param description body string true "Описание события (минимум 10 символов)"
+// @Param carousel body []string true "Массив ссылок на изображения для карусели события"
+// @Param tags body []string true "Массив тегов для события"
+// @Param icon body string true "Ссылка на иконку события (должна быть валидной URL)"
+// @Param start_time body string true "Дата и время начала события (в формате 2006-01-02T15:04:05Z07:00)"
+// @Param address_lng body float64 true "Долгота местоположения события"
+// @Param address_lat body float64 true "Широта местоположения события"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /events [post]
 func (hs *handlerService) NewEvent(ctx *gin.Context) {
 	var params struct {
 		// Нельзя парсить сразу в uuid.UUID, потому что это не поддерживает нормально gin
@@ -121,6 +140,18 @@ func (hs *handlerService) NewEvent(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetEvent
+// @Summary Получить информацию о событии
+// @Description Возвращает информацию о конкретном событии по его ID.
+// @ID get-event
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /events/{eventId} [get]
 func (hs *handlerService) GetEvent(ctx *gin.Context) {
 	var params struct {
 		EventID string `uri:"eventId" binding:"required,uuid"`
@@ -153,6 +184,27 @@ func (hs *handlerService) GetEvent(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// EditEvent
+// @Summary Редактировать событие
+// @Description Редактирует информацию о существующем событии.
+// @ID edit-event
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
+// @Param name body string false "Новое название события (минимум 6 символов)"
+// @Param description body string false "Новое описание события (минимум 10 символов)"
+// @Param carousel body []string false "Новый массив ссылок на изображения для карусели события"
+// @Param tags body []string false "Новый массив тегов для события"
+// @Param icon body string false "Новая ссылка на иконку события (должна быть валидной URL)"
+// @Param start_time body string false "Новая дата и время начала события (в формате 2006-01-02T15:04:05Z07:00)"
+// @Param address_lng body float64 false "Новая долгота местоположения события"
+// @Param address_lat body float64 false "Новая широта местоположения события"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /events/{eventId} [patch]
 func (hs *handlerService) EditEvent(ctx *gin.Context) {
 	var paramsURI struct {
 		EventID string `uri:"eventId" binding:"required,uuid"`
@@ -289,6 +341,17 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetCompanyEvents
+// @Summary Получить все события компании
+// @Description Возвращает список всех событий, принадлежащих конкретной компании.
+// @ID get-company-events
+// @Accept json
+// @Produce json
+// @Param companyId path string true "Уникальный идентификатор компании (в формате UUID)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /companies/{companyId}/events [get]
 func (hs *handlerService) GetCompanyEvents(ctx *gin.Context) {
 	var params struct {
 		CompanyID string `uri:"companyId" binding:"required,uuid"`
@@ -317,6 +380,17 @@ func (hs *handlerService) GetCompanyEvents(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// SearchEvents
+// @Summary Поиск событий
+// @Description Ищет события по заданному запросу.
+// @ID search-events
+// @Accept json
+// @Produce json
+// @Param query path string true "Поисковый запрос (минимум 2 символа)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /events/search/{query} [get]
 func (hs *handlerService) SearchEvents(ctx *gin.Context) {
 	var params struct {
 		Query string `uri:"query" binding:"required,min=2"`
@@ -343,6 +417,15 @@ func (hs *handlerService) SearchEvents(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetAllEvents
+// @Summary Получить все события
+// @Description Возвращает список всех событий в системе.
+// @ID get-all-events
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.Response
+// @Failure 500 {object} models.ErrorResponse
+// @Router /events [get]
 func (hs *handlerService) GetAllEvents(ctx *gin.Context) {
 	events, err := hs.pg.GetAllEvents(ctx)
 	if err != nil {
@@ -358,6 +441,22 @@ func (hs *handlerService) GetAllEvents(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// NewReviewEvent
+// @Summary Добавить новый отзыв к событию
+// @Description Создает новый отзыв к указанному событию.
+// @ID create-event-review
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
+// @Param review_text body string true "Текст отзыва (минимум 6 символов)"
+// @Param stars body float64 true "Оценка события (от 1 до 5)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 409 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /events/{eventId}/reviews [post]
 func (hs *handlerService) NewReviewEvent(ctx *gin.Context) {
 	var paramsURI struct {
 		EventID string `uri:"eventId" binding:"required,uuid"`
@@ -427,6 +526,21 @@ func (hs *handlerService) NewReviewEvent(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// EditReviewsEvent
+// @Summary Редактировать отзыв к событию
+// @Description Редактирует существующий отзыв к событию.
+// @ID edit-event-review
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
+// @Param review_text body string false "Новый текст отзыва (минимум 6 символов)"
+// @Param stars body float64 false "Новая оценка события (от 1 до 5)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 403 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /events/{eventId}/reviews [patch]
 func (hs *handlerService) EditReviewsEvent(ctx *gin.Context) {
 	var paramsURI struct {
 		EventID string `uri:"eventId" binding:"required,uuid"`
@@ -511,6 +625,17 @@ func (hs *handlerService) EditReviewsEvent(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetReviewsEvent
+// @Summary Получить отзывы к событию
+// @Description Возвращает список всех отзывов к указанному событию.
+// @ID get-event-reviews
+// @Accept json
+// @Produce json
+// @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /events/{eventId}/reviews [get]
 func (hs *handlerService) GetReviewsEvent(ctx *gin.Context) {
 	var params struct {
 		EventID string `uri:"eventId" binding:"required,uuid"`

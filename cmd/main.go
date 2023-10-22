@@ -10,6 +10,12 @@ import (
 	"go.uber.org/zap"
 )
 
+// @title Prisma
+// @description Travel App - приложение для путешественников
+// @version 1.0
+// @host prisma.ssapi.ru
+// @BasePath /
+// @schemes https
 func main() {
 	config.Load()
 	if err := config.Parse(); err != nil {

@@ -15,6 +15,17 @@ import (
 	"go.uber.org/zap"
 )
 
+// GetReviewsPlace
+// @Summary Получить отзывы о месте
+// @Description Возвращает список всех отзывов о указанном месте.
+// @ID get-place-reviews
+// @Accept json
+// @Produce json
+// @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /places/{placeId}/reviews [get]
 func (hs *handlerService) GetReviewsPlace(ctx *gin.Context) {
 	var params struct {
 		PlaceID string `uri:"placeId" binding:"required,uuid"`
@@ -37,6 +48,19 @@ func (hs *handlerService) GetReviewsPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// NewReviewPlace
+// @Summary Добавить новый отзыв о месте
+// @Description Создает новый отзыв о указанном месте.
+// @ID create-place-review
+// @Accept json
+// @Produce json
+// @Param placeID uri string true "Уникальный идентификатор места (в формате UUID)"
+// @Param review_text uri string true "Текст отзыва (минимум 6 символов)"
+// @Param stars uri float64 true "Оценка места (от 1 до 5)"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /places/{placeID}/reviews [post]
 func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 	vkParams := hs.GetVKParams(ctx)
 
@@ -85,6 +109,21 @@ func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// NewPlace
+// @Summary Добавить новое место
+// @Description Создает новое место.
+// @ID create-place
+// @Accept json
+// @Produce json
+// @Param name uri string true "Название места"
+// @Param description uri string true "Описание места"
+// @Param carousel uri []string true "Список изображений для карусели"
+// @Param address_lng uri float64 true "Долгота местоположения"
+// @Param address_lat uri float64 true "Широта местоположения"
+// @Success 200 {object} models.Response
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /places [post]
 func (hs *handlerService) NewPlace(ctx *gin.Context) {
 	var params struct {
 		Name        string   `uri:"name" binding:"required"`
