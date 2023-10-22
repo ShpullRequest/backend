@@ -17,6 +17,11 @@ func ConfigureService(apiService api.Service) {
 		logger: apiService.GetLogger(),
 	}
 
+	apiService.GetRouter().GET("/achievements/", hs.GetAllAchievements)
+	apiService.GetRouter().GET("/achievements/:achievementId", hs.GetAchievement)
+	apiService.GetRouter().PATCH("/achievements/:achievementId", hs.EditAchievement)
+	apiService.GetRouter().POST("/achievements/", hs.NewAchievement)
+
 	apiService.GetRouter().GET("/users/", hs.GetMe)
 	apiService.GetRouter().GET("/users/:vkId/", hs.GetUserByVkID)
 	apiService.GetRouter().PATCH("/users/", hs.EditUser)
@@ -26,6 +31,13 @@ func ConfigureService(apiService api.Service) {
 	apiService.GetRouter().GET("/companies/my/", hs.GetMyCompanies)
 	apiService.GetRouter().POST("/companies/", hs.NewCompany)
 	apiService.GetRouter().POST("/companies/:companyId/accept/", hs.AcceptCompany)
+
+	apiService.GetRouter().GET("/places/", hs.GetAllPlaces)
+	apiService.GetRouter().GET("/places/:placeId", hs.GetPlace)
+	apiService.GetRouter().GET("/places/:placeId/reviews", hs.GetReviewsPlace)
+	apiService.GetRouter().PATCH("/places/:placeId", hs.EditPlace)
+	apiService.GetRouter().POST("/places/", hs.NewPlace)
+	apiService.GetRouter().POST("/places/:placeId/reviews/", hs.NewReviewPlace)
 
 	apiService.GetRouter().GET("/events/", hs.GetAllEvents)
 	apiService.GetRouter().GET("/events/company/:companyId", hs.GetCompanyEvents)
