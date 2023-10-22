@@ -31,7 +31,7 @@ import (
 // @Param start_time body string true "Дата и время начала события (в формате 2006-01-02T15:04:05Z07:00)"
 // @Param address_lng body float64 true "Долгота местоположения события"
 // @Param address_lat body float64 true "Широта местоположения события"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.Event
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /events [post]
@@ -147,7 +147,7 @@ func (hs *handlerService) NewEvent(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.Event
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
@@ -199,7 +199,7 @@ func (hs *handlerService) GetEvent(ctx *gin.Context) {
 // @Param start_time body string false "Новая дата и время начала события (в формате 2006-01-02T15:04:05Z07:00)"
 // @Param address_lng body float64 false "Новая долгота местоположения события"
 // @Param address_lat body float64 false "Новая широта местоположения события"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.Event
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
@@ -348,7 +348,7 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param companyId path string true "Уникальный идентификатор компании (в формате UUID)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} []models.Event
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /companies/{companyId}/events [get]
@@ -387,7 +387,7 @@ func (hs *handlerService) GetCompanyEvents(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param query path string true "Поисковый запрос (минимум 2 символа)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} []models.Event
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /events/search/{query} [get]
@@ -423,7 +423,7 @@ func (hs *handlerService) SearchEvents(ctx *gin.Context) {
 // @ID get-all-events
 // @Accept json
 // @Produce json
-// @Success 200 {object} models.Response
+// @Success 200 {object} []models.Event
 // @Failure 500 {object} models.ErrorResponse
 // @Router /events [get]
 func (hs *handlerService) GetAllEvents(ctx *gin.Context) {
@@ -450,7 +450,7 @@ func (hs *handlerService) GetAllEvents(ctx *gin.Context) {
 // @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
 // @Param review_text body string true "Текст отзыва (минимум 6 символов)"
 // @Param stars body float64 true "Оценка события (от 1 до 5)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.ReviewEvent
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
@@ -535,7 +535,7 @@ func (hs *handlerService) NewReviewEvent(ctx *gin.Context) {
 // @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
 // @Param review_text body string false "Новый текст отзыва (минимум 6 символов)"
 // @Param stars body float64 false "Новая оценка события (от 1 до 5)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.ReviewEvent
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
@@ -632,7 +632,7 @@ func (hs *handlerService) EditReviewsEvent(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param eventId path string true "Уникальный идентификатор события (в формате UUID)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.ReviewEvent
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /events/{eventId}/reviews [get]

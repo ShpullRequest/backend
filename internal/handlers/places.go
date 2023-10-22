@@ -15,6 +15,21 @@ import (
 	"go.uber.org/zap"
 )
 
+// NewPlace
+// @Summary Добавить новое место
+// @Description Создает новое место.
+// @ID create-place
+// @Accept json
+// @Produce json
+// @Param name body string true "Название места"
+// @Param description body string true "Описание места"
+// @Param carousel body []string true "Список изображений для карусели"
+// @Param address_lng body float64 true "Долгота местоположения"
+// @Param address_lat body float64 true "Широта местоположения"
+// @Success 200 {object} models.Place
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /places [post]
 func (hs *handlerService) NewPlace(ctx *gin.Context) {
 	var params struct {
 		Name        string   `uri:"name" binding:"required"`
@@ -62,6 +77,17 @@ func (hs *handlerService) NewPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// EditPlace
+// @Summary Редактировать место
+// @Description Редактирует существующее место.
+// @ID edit-place
+// @Accept json
+// @Produce json
+// @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
+// @Success 200 {object} models.Place
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /places/{placeID} [patch]
 func (hs *handlerService) EditPlace(ctx *gin.Context) {
 	var params struct {
 		PlaceID string `uri:"placeId" binding:"required,uuid"`
@@ -95,6 +121,17 @@ func (hs *handlerService) EditPlace(ctx *gin.Context) {
 	}
 }
 
+// GetPlace
+// @Summary Получить место
+// @Description Возвращает информацию о указанном месте.
+// @ID get-place
+// @Accept json
+// @Produce json
+// @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
+// @Success 200 {object} models.Place
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /places/{placeID} [get]
 func (hs *handlerService) GetPlace(ctx *gin.Context) {
 	var params struct {
 		PlaceID string `uri:"placeId" binding:"required,uuid"`
@@ -123,6 +160,15 @@ func (hs *handlerService) GetPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetAllPlaces
+// @Summary Получить все места
+// @Description Возвращает список всех мест.
+// @ID get-all-places
+// @Accept json
+// @Produce json
+// @Success 200 {object} []models.Place
+// @Failure 500 {object} models.ErrorResponse
+// @Router /places [get]
 func (hs *handlerService) GetAllPlaces(ctx *gin.Context) {
 	places, err := hs.pg.GetAllPlaces(ctx)
 	if err != nil {
@@ -138,6 +184,19 @@ func (hs *handlerService) GetAllPlaces(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// NewReviewPlace
+// @Summary Добавить новый отзыв о месте
+// @Description Создает новый отзыв о указанном месте.
+// @ID create-place-review
+// @Accept json
+// @Produce json
+// @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
+// @Param review_text body string true "Текст отзыва (минимум 6 символов)"
+// @Param stars body float64 true "Оценка места (от 1 до 5)"
+// @Success 200 {object} models.ReviewPlace
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /places/{placeID}/reviews [post]
 func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 	vkParams := hs.GetVKParams(ctx)
 
@@ -186,6 +245,17 @@ func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
+// GetReviewsPlace
+// @Summary Получить отзывы о месте
+// @Description Возвращает список всех отзывов о указанном месте.
+// @ID get-place-reviews
+// @Accept json
+// @Produce json
+// @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
+// @Success 200 {object} models.ReviewPlace
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /places/{placeId}/reviews [get]
 func (hs *handlerService) GetReviewsPlace(ctx *gin.Context) {
 	var params struct {
 		PlaceID string `uri:"placeId" binding:"required,uuid"`

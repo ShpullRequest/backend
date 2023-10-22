@@ -22,7 +22,7 @@ import (
 // @Param description body string true "Описание достижения (минимум 10 символов)"
 // @Param icon body string true "Ссылка на иконку достижения (должна быть валидной URL)"
 // @Param coins body integer true "Количество монет, присваиваемых за достижение"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.Achievements
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
@@ -87,7 +87,7 @@ func (hs *handlerService) NewAchievement(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param achievementId path string true "Уникальный идентификатор достижения (в формате UUID)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.Achievements
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
@@ -127,7 +127,7 @@ func (hs *handlerService) GetAchievement(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param achievementId path string true "Уникальный идентификатор достижения (в формате UUID)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.Achievements
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
@@ -189,7 +189,7 @@ func (hs *handlerService) EditAchievement(ctx *gin.Context) {
 // @ID get-all-achievements
 // @Accept json
 // @Produce json
-// @Success 200 {object} models.Response
+// @Success 200 {object} []models.Achievements
 // @Failure 500 {object} models.ErrorResponse
 // @Router /achievements [get]
 func (hs *handlerService) GetAllAchievements(ctx *gin.Context) {

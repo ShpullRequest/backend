@@ -20,7 +20,7 @@ import (
 // @Param name body string true "Название компании (минимум 6 символов)"
 // @Param description body string true "Описание компании (минимум 12 символов)"
 // @Param photo_card body string true "Ссылка на фото компании (должна быть валидной URL)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.Company
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /companies [post]
@@ -71,7 +71,7 @@ func (hs *handlerService) NewCompany(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param companyId path string true "Уникальный идентификатор компании (в формате UUID)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.Company
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
@@ -140,7 +140,7 @@ func (hs *handlerService) AcceptCompany(ctx *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param companyId path string true "Уникальный идентификатор компании (в формате UUID)"
-// @Success 200 {object} models.Response
+// @Success 200 {object} models.Company
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
@@ -196,7 +196,7 @@ func (hs *handlerService) GetCompany(ctx *gin.Context) {
 // @ID get-my-companies
 // @Accept json
 // @Produce json
-// @Success 200 {object} models.Response
+// @Success 200 {object} []models.Company
 // @Failure 500 {object} models.ErrorResponse
 // @Router /companies/mine [get]
 func (hs *handlerService) GetMyCompanies(ctx *gin.Context) {
@@ -222,7 +222,7 @@ func (hs *handlerService) GetMyCompanies(ctx *gin.Context) {
 // @ID get-all-companies
 // @Accept json
 // @Produce json
-// @Success 200 {object} models.Response
+// @Success 200 {object} []models.Company
 // @Failure 500 {object} models.ErrorResponse
 // @Router /companies [get]
 func (hs *handlerService) GetAllCompanies(ctx *gin.Context) {

@@ -14,6 +14,11 @@ type (
 		SelectedGeo      string    `json:"selected_geo" db:"selected_geo"`
 	}
 
+	UserGetMeResponse struct {
+		*User
+		CurrentGeo string `json:"current_geo"`
+	}
+
 	UserAchievementsRel struct {
 		ID            uuid.UUID `json:"_id" db:"id"`
 		UserID        uuid.UUID `json:"user_id" db:"user_id"`
