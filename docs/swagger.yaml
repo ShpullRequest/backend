@@ -350,6 +350,11 @@ paths:
       description: Создает новую компанию с указанными параметрами.
       operationId: create-company
       parameters:
+      - description: Строка авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Название компании (минимум 6 символов)
         in: body
         name: name
@@ -481,7 +486,7 @@ paths:
           schema:
             $ref: '#/definitions/models.ErrorResponse'
       summary: Получить все события компании
-  /companies/mine:
+  /companies/my:
     get:
       consumes:
       - application/json

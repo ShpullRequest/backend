@@ -18,6 +18,7 @@ import (
 // @ID create-achievement
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param name body string true "Название достижения (минимум 6 символов)"
 // @Param description body string true "Описание достижения (минимум 10 символов)"
 // @Param icon body string true "Ссылка на иконку достижения (должна быть валидной URL)"
@@ -86,6 +87,7 @@ func (hs *handlerService) NewAchievement(ctx *gin.Context) {
 // @ID get-achievement
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param achievementId path string true "Уникальный идентификатор достижения (в формате UUID)"
 // @Success 200 {object} models.Achievements
 // @Failure 400 {object} models.ErrorResponse
@@ -126,7 +128,12 @@ func (hs *handlerService) GetAchievement(ctx *gin.Context) {
 // @ID edit-achievement
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param achievementId path string true "Уникальный идентификатор достижения (в формате UUID)"
+// @Param name body string false "Название достижения (минимум 6 символов)"
+// @Param description body string false "Описание достижения (минимум 10 символов)"
+// @Param icon body string false "Ссылка на иконку достижения (должна быть в формате URL)"
+// @Param coins body int false "Количество монет за достижение"
 // @Success 200 {object} models.Achievements
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 403 {object} models.ErrorResponse
@@ -134,11 +141,25 @@ func (hs *handlerService) GetAchievement(ctx *gin.Context) {
 // @Failure 500 {object} models.ErrorResponse
 // @Router /achievements/{achievementId} [patch]
 func (hs *handlerService) EditAchievement(ctx *gin.Context) {
-	var params struct {
+	var paramsURI struct {
 		AchievementID string `uri:"achievementId" binding:"required,uuid"`
 	}
 
-	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
+	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &paramsURI); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+
+	var params struct {
+		Name        string `json:"name" binding:"omitempty,min=6"`
+		Description string `json:"description" binding:"omitempty,min=10"`
+		Icon        string `json:"icon" binding:"omitempty,url"`
+		Coins       int    `json:"coins"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
 		ctx.JSON(statusCode, response)
 		ctx.Abort()
 
@@ -162,15 +183,31 @@ func (hs *handlerService) EditAchievement(ctx *gin.Context) {
 		return
 	}
 
-	achievementID, _ := uuid.Parse(params.AchievementID)
+	achievementID, _ := uuid.Parse(paramsURI.AchievementID)
 	achievement, err := hs.pg.GetAchievementByID(ctx, achievementID)
 	if err != nil {
-		hs.logger.Error("Error get achievement", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		if errors.Is(err, sql.ErrNoRows) {
+			ctx.JSON(http.StatusNotFound, models.NewErrorResponse(errs.NewNotFound("Achievement not found")))
+		} else {
+			hs.logger.Error("Error get event", zap.Error(err))
+			ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		}
 		ctx.Abort()
 
 		return
+	}
+
+	if params.Name != "" {
+		achievement.Name = params.Name
+	}
+	if params.Description != "" {
+		achievement.Description = params.Description
+	}
+	if params.Icon != "" {
+		achievement.Icon = params.Icon
+	}
+	if params.Coins != 0 {
+		achievement.Coins = params.Coins
 	}
 
 	if err = hs.pg.SaveAchievement(ctx, achievement); err != nil {
@@ -181,6 +218,9 @@ func (hs *handlerService) EditAchievement(ctx *gin.Context) {
 
 		return
 	}
+
+	ctx.JSON(http.StatusOK, models.NewResponse(achievement))
+	ctx.Abort()
 }
 
 // GetAllAchievements
@@ -189,6 +229,7 @@ func (hs *handlerService) EditAchievement(ctx *gin.Context) {
 // @ID get-all-achievements
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Success 200 {object} []models.Achievements
 // @Failure 500 {object} models.ErrorResponse
 // @Router /achievements [get]

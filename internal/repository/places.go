@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ShpullRequest/backend/internal/models"
 	"github.com/google/uuid"
@@ -32,6 +33,25 @@ func (p *Pg) GetPlace(ctx context.Context, id uuid.UUID) (*models.Place, error) 
 	err := p.db.GetContext(ctx, &place, "SELECT * FROM places WHERE id = $1", id)
 
 	return &place, err
+}
+
+func (p *Pg) SearchPlace(ctx context.Context, q string) ([]models.Place, error) {
+	q = fmt.Sprintf("%%%s%%", q)
+
+	var places []models.Place
+	err := p.db.SelectContext(
+		ctx,
+		&places,
+		`SELECT * FROM places
+				WHERE 
+					LOWER(name) LIKE LOWER($1) OR
+					LOWER(description) LIKE LOWER($1) OR
+					LOWER(address_text) LIKE LOWER($1);
+				`,
+		q,
+	)
+
+	return places, err
 }
 
 func (p *Pg) GetAllPlaces(ctx context.Context) ([]models.Place, error) {
@@ -75,6 +95,23 @@ func (p *Pg) NewReviewPlace(ctx context.Context, reviewPlace models.ReviewPlace)
 
 	reviewPlace.ID = id
 	return &reviewPlace, nil
+}
+
+func (p *Pg) SaveReviewPlace(ctx context.Context, reviewPlace *models.ReviewEvent) error {
+	_, err := p.db.ExecContext(
+		ctx,
+		`UPDATE reviews_places SET review_text = $1, stars = $2 WHERE owner_id = $3 AND place_id = $4`,
+		reviewPlace.ReviewText, reviewPlace.Stars, reviewPlace.OwnerID, reviewPlace.EventID,
+	)
+
+	return err
+}
+
+func (p *Pg) GetReviewPlace(ctx context.Context, ownerID uuid.UUID, placeID uuid.UUID) (*models.ReviewEvent, error) {
+	var reviewEvent models.ReviewEvent
+	err := p.db.GetContext(ctx, &reviewEvent, "SELECT * FROM reviews_places WHERE owner_id = $1 AND place_id = $2 AND is_deleted = false", ownerID, placeID)
+
+	return &reviewEvent, err
 }
 
 func (p *Pg) GetReviewsPlace(ctx context.Context, placeID uuid.UUID) ([]models.ReviewPlace, error) {

@@ -4,9 +4,11 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/ShpullRequest/backend/internal/config"
 	"github.com/ShpullRequest/backend/internal/errs"
 	"github.com/ShpullRequest/backend/internal/models"
 	"github.com/ShpullRequest/backend/pkg/ip"
+	"github.com/ShpullRequest/backend/pkg/vk/maps"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -19,6 +21,7 @@ import (
 // @ID get-me
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Success 200 {object} models.UserGetMeResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
@@ -51,18 +54,31 @@ func (hs *handlerService) GetMe(ctx *gin.Context) {
 
 			return
 		}
-		hs.logger.Debug("Success create user")
 	}
 
-	userGeo, err := ip.GetGeoByIP(ctx.ClientIP())
+	var geoText string
+	currentGeo, err := ip.GetGeoByIP(ctx.ClientIP())
+
 	if err != nil {
 		hs.logger.Error("Error get user geo", zap.Error(err))
 	}
 
-	hs.logger.Debug("Success get me", zap.Any("User", user))
+	if user.SelectedGeo != "" || currentGeo != "" {
+		geo := currentGeo
+		if user.SelectedGeo != "" {
+			geo = user.SelectedGeo
+		}
+
+		geoText, err = maps.New(config.Config).GetAddressByGeoQ(geo)
+		if err != nil {
+			hs.logger.Error("Error get user geo address (vk maps api)", zap.Error(err))
+		}
+	}
+
 	ctx.JSON(http.StatusOK, models.NewResponse(models.UserGetMeResponse{
 		User:       user,
-		CurrentGeo: userGeo,
+		CurrentGeo: currentGeo,
+		GeoText:    geoText,
 	}))
 	ctx.Abort()
 }
@@ -73,6 +89,7 @@ func (hs *handlerService) GetMe(ctx *gin.Context) {
 // @ID get-user-by-vk-id
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param vkId path string true "Уникальный идентификатор пользователя в VK"
 // @Success 200 {object} models.User
 // @Failure 400 {object} models.ErrorResponse
@@ -115,6 +132,7 @@ func (hs *handlerService) GetUserByVkID(ctx *gin.Context) {
 // @ID edit-user
 // @Accept json
 // @Produce json
+// @Param Authorization header string true "Строка авторизации"
 // @Param passed_onboarding body bool false "Пройдено обучение (опционально)"
 // @Param selected_geo_lat body float64 false "Широта выбранного местоположения"
 // @Param selected_geo_lot body float64 false "Долгота выбранного местоположения"

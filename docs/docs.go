@@ -261,6 +261,13 @@ const docTemplate = `{
                 "operationId": "create-company",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "description": "Название компании (минимум 6 символов)",
                         "name": "name",
                         "in": "body",
@@ -310,7 +317,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/companies/mine": {
+        "/companies/my": {
             "get": {
                 "description": "Возвращает список компаний, связанных с текущим пользователем.",
                 "consumes": [
