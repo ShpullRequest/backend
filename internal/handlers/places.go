@@ -6,8 +6,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ShpullRequest/backend/internal/config"
 	"github.com/ShpullRequest/backend/internal/errs"
 	"github.com/ShpullRequest/backend/internal/models"
+	"github.com/ShpullRequest/backend/pkg/vk/maps"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -83,13 +85,11 @@ func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
-// NewPlace()
 func (hs *handlerService) NewPlace(ctx *gin.Context) {
 	var params struct {
 		Name        string   `uri:"name" binding:"required"`
 		Description string   `uri:"description" binding:"required"`
 		Carousel    []string `uri:"carousel" binding:"required"`
-		AddressText string   `uri:"address_text" binding:"required"`
 		AddressLng  float64  `uri:"address_lng" binding:"required"`
 		AddressLat  float64  `uri:"address_lat" binding:"required"`
 	}
@@ -101,11 +101,21 @@ func (hs *handlerService) NewPlace(ctx *gin.Context) {
 		return
 	}
 
+	addressText, err := maps.New(config.Config).GetAddressByGeo(params.AddressLng, params.AddressLat)
+	if err != nil {
+		hs.logger.Error("Error get company by id", zap.Error(err))
+
+		ctx.JSON(http.StatusBadGateway, models.NewErrorResponse(errs.NewBadGateway("Internal server error on vk maps")))
+		ctx.Abort()
+
+		return
+	}
+
 	place, err := hs.pg.NewPlace(ctx, models.Place{
 		Name:        params.Name,
 		Description: params.Description,
 		Carousel:    params.Carousel,
-		AddressText: params.AddressText,
+		AddressText: addressText,
 		AddressLng:  params.AddressLng,
 		AddressLat:  params.AddressLat,
 	})
@@ -122,17 +132,9 @@ func (hs *handlerService) NewPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
-// EditPlace()
 func (hs *handlerService) EditPlace(ctx *gin.Context) {
 	var params struct {
-		PlaceID     string   `uri:"placeID" binding:"required,uuid"`
-		Name        string   `uri:"name" binding:"required"`
-		Description string   `uri:"description" binding:"required"`
-		Carousel    []string `uri:"carousel" binding:"required"`
-		AddressText string   `uri:"address_text" binding:"required"`
-		AddressLng  float64  `uri:"address_lng" binding:"required"`
-		AddressLat  float64  `uri:"address_lat" binding:"required"`
-		IsDeleted   bool     `uri:"is_deleted" binding:"required"`
+		PlaceID string `uri:"placeID" binding:"required,uuid"`
 	}
 	placeID, _ := uuid.Parse(params.PlaceID)
 
@@ -163,7 +165,6 @@ func (hs *handlerService) EditPlace(ctx *gin.Context) {
 	}
 }
 
-// GetPlace()
 func (hs *handlerService) GetPlace(ctx *gin.Context) {
 	var params struct {
 		PlaceID string `uri:"placeID" binding:"required,uuid"`
@@ -192,7 +193,6 @@ func (hs *handlerService) GetPlace(ctx *gin.Context) {
 	ctx.Abort()
 }
 
-// GetAllPlaces()
 func (hs *handlerService) GetAllPlaces(ctx *gin.Context) {
 	places, err := hs.pg.GetAllPlaces(ctx)
 	if err != nil {
