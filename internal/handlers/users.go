@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} models.UserGetMeResponse
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /users/me [get]
+// @Router /users [get]
 func (hs *handlerService) GetMe(ctx *gin.Context) {
 	vkParams := hs.GetVKParams(ctx)
 
@@ -139,7 +139,7 @@ func (hs *handlerService) GetUserByVkID(ctx *gin.Context) {
 // @Success 200 {object} models.User
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
-// @Router /users/me [patch]
+// @Router /users [patch]
 func (hs *handlerService) EditUser(ctx *gin.Context) {
 	var params struct {
 		PassedOnboarding bool    `json:"passed_onboarding,omitempty"`

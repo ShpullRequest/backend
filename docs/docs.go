@@ -26,6 +26,15 @@ const docTemplate = `{
                 ],
                 "summary": "Получить все достижения",
                 "operationId": "get-all-achievements",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -55,6 +64,13 @@ const docTemplate = `{
                 "summary": "Создать новое достижение",
                 "operationId": "create-achievement",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Название достижения (минимум 6 символов)",
                         "name": "name",
@@ -134,6 +150,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор достижения (в формате UUID)",
                         "name": "achievementId",
                         "in": "path",
@@ -180,10 +203,49 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор достижения (в формате UUID)",
                         "name": "achievementId",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Название достижения (минимум 6 символов)",
+                        "name": "name",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Описание достижения (минимум 10 символов)",
+                        "name": "description",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Ссылка на иконку достижения (должна быть в формате URL)",
+                        "name": "icon",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Количество монет за достижение",
+                        "name": "coins",
+                        "in": "body",
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
@@ -231,6 +293,15 @@ const docTemplate = `{
                 ],
                 "summary": "Получить все компании",
                 "operationId": "get-all-companies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -328,6 +399,15 @@ const docTemplate = `{
                 ],
                 "summary": "Получить мои компании",
                 "operationId": "get-my-companies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -359,6 +439,13 @@ const docTemplate = `{
                 "summary": "Получить информацию о компании",
                 "operationId": "get-company",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор компании (в формате UUID)",
@@ -405,6 +492,13 @@ const docTemplate = `{
                 "summary": "Принять компанию",
                 "operationId": "accept-company",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор компании (в формате UUID)",
@@ -461,6 +555,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор компании (в формате UUID)",
                         "name": "companyId",
                         "in": "path",
@@ -503,6 +604,15 @@ const docTemplate = `{
                 ],
                 "summary": "Получить все события",
                 "operationId": "get-all-events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -532,6 +642,13 @@ const docTemplate = `{
                 "summary": "Создать новое событие",
                 "operationId": "create-event",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Уникальный идентификатор компании (в формате UUID)",
                         "name": "company_id",
@@ -655,6 +772,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Поисковый запрос (минимум 2 символа)",
                         "name": "query",
                         "in": "path",
@@ -698,6 +822,13 @@ const docTemplate = `{
                 "summary": "Получить информацию о событии",
                 "operationId": "get-event",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор события (в формате UUID)",
@@ -744,6 +875,13 @@ const docTemplate = `{
                 "summary": "Редактировать событие",
                 "operationId": "edit-event",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор события (в формате UUID)",
@@ -870,6 +1008,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор события (в формате UUID)",
                         "name": "eventId",
                         "in": "path",
@@ -908,6 +1053,13 @@ const docTemplate = `{
                 "summary": "Добавить новый отзыв к событию",
                 "operationId": "create-event-review",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор события (в формате UUID)",
@@ -986,6 +1138,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор события (в формате UUID)",
                         "name": "eventId",
                         "in": "path",
@@ -1053,6 +1212,15 @@ const docTemplate = `{
                 ],
                 "summary": "Получить все места",
                 "operationId": "get-all-places",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1082,6 +1250,13 @@ const docTemplate = `{
                 "summary": "Добавить новое место",
                 "operationId": "create-place",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Название места",
                         "name": "name",
@@ -1167,6 +1342,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор места (в формате UUID)",
                         "name": "placeId",
                         "in": "path",
@@ -1205,6 +1387,13 @@ const docTemplate = `{
                 "summary": "Редактировать место",
                 "operationId": "edit-place",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор места (в формате UUID)",
@@ -1247,6 +1436,13 @@ const docTemplate = `{
                 "summary": "Добавить новый отзыв о месте",
                 "operationId": "create-place-review",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор места (в формате UUID)",
@@ -1309,6 +1505,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор места (в формате UUID)",
                         "name": "placeId",
                         "in": "path",
@@ -1319,7 +1522,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ReviewPlace"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.ReviewPlace"
+                            }
                         }
                     },
                     "400": {
@@ -1348,6 +1554,15 @@ const docTemplate = `{
                 ],
                 "summary": "Получить все маршруты",
                 "operationId": "get-all-routes",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1377,6 +1592,13 @@ const docTemplate = `{
                 "summary": "Создать новый маршрут",
                 "operationId": "new-route",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Уникальный идентификатор компании (опционально)",
                         "name": "company_id",
@@ -1462,6 +1684,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор компании",
                         "name": "companyId",
                         "in": "path",
@@ -1513,6 +1742,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Запрос для поиска маршрутов (минимум 2 символа)",
                         "name": "query",
                         "in": "path",
@@ -1556,6 +1792,13 @@ const docTemplate = `{
                 "summary": "Получить информацию о маршруте",
                 "operationId": "get-route",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор маршрута",
@@ -1602,6 +1845,13 @@ const docTemplate = `{
                 "summary": "Редактировать маршрут",
                 "operationId": "edit-route",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор маршрута",
@@ -1690,6 +1940,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор маршрута",
                         "name": "routeId",
                         "in": "path",
@@ -1728,6 +1985,13 @@ const docTemplate = `{
                 "summary": "Добавить отзыв о маршруте",
                 "operationId": "new-review-route",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор маршрута",
@@ -1800,6 +2064,13 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Уникальный идентификатор маршрута",
                         "name": "routeId",
                         "in": "path",
@@ -1850,7 +2121,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/me": {
+        "/users": {
             "get": {
                 "description": "Возвращает информацию о текущем пользователе по его VK ID.",
                 "consumes": [
@@ -1861,6 +2132,15 @@ const docTemplate = `{
                 ],
                 "summary": "Получить информацию о текущем пользователе",
                 "operationId": "get-me",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1893,6 +2173,13 @@ const docTemplate = `{
                 "summary": "Редактировать профиль пользователя",
                 "operationId": "edit-user",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Пройдено обучение (опционально)",
                         "name": "passed_onboarding",
@@ -1952,6 +2239,13 @@ const docTemplate = `{
                 "summary": "Получить пользователя по VK ID",
                 "operationId": "get-user-by-vk-id",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Строка авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Уникальный идентификатор пользователя в VK",
@@ -2243,6 +2537,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "current_geo": {
+                    "type": "string"
+                },
+                "geo_text": {
                     "type": "string"
                 },
                 "is_admin": {
