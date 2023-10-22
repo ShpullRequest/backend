@@ -15,115 +15,6 @@ import (
 	"go.uber.org/zap"
 )
 
-// GetReviewsPlace
-// @Summary Получить отзывы о месте
-// @Description Возвращает список всех отзывов о указанном месте.
-// @ID get-place-reviews
-// @Accept json
-// @Produce json
-// @Param placeId path string true "Уникальный идентификатор места (в формате UUID)"
-// @Success 200 {object} models.Response
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 500 {object} models.ErrorResponse
-// @Router /places/{placeId}/reviews [get]
-func (hs *handlerService) GetReviewsPlace(ctx *gin.Context) {
-	var params struct {
-		PlaceID string `uri:"placeId" binding:"required,uuid"`
-	}
-
-	placeID, _ := uuid.Parse(params.PlaceID)
-	reviews, err := hs.pg.GetReviewsPlace(ctx, placeID)
-
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		hs.logger.Debug("Error get reviews", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
-		ctx.Abort()
-
-		return
-	}
-
-	hs.logger.Debug("Success get reviews", zap.Any("Reviews", reviews))
-	ctx.JSON(http.StatusOK, models.NewResponse(reviews))
-	ctx.Abort()
-}
-
-// NewReviewPlace
-// @Summary Добавить новый отзыв о месте
-// @Description Создает новый отзыв о указанном месте.
-// @ID create-place-review
-// @Accept json
-// @Produce json
-// @Param placeID uri string true "Уникальный идентификатор места (в формате UUID)"
-// @Param review_text uri string true "Текст отзыва (минимум 6 символов)"
-// @Param stars uri float64 true "Оценка места (от 1 до 5)"
-// @Success 200 {object} models.Response
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 500 {object} models.ErrorResponse
-// @Router /places/{placeID}/reviews [post]
-func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
-	vkParams := hs.GetVKParams(ctx)
-
-	var params struct {
-		PlaceID    string  `uri:"placeID" binding:"required,uuid"`
-		ReviewText string  `uri:"review_text" binding:"required"`
-		Stars      float64 `uri:"stars" binding:"required"`
-	}
-
-	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
-		ctx.JSON(statusCode, response)
-		ctx.Abort()
-
-		return
-	}
-
-	user, err := hs.pg.GetUserByVkID(ctx, int64(vkParams.VkUserID))
-	if err != nil {
-		hs.logger.Error("Error get user", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
-		ctx.Abort()
-
-		return
-	}
-
-	placeID, _ := uuid.Parse(params.PlaceID)
-	reviewPlace, err := hs.pg.NewReviewPlace(ctx, models.ReviewPlace{
-		OwnerID:    user.ID,
-		PlaceID:    placeID,
-		ReviewText: params.ReviewText,
-		Stars:      params.Stars,
-		CreatedAt:  time.Now(),
-	})
-
-	if err != nil {
-		hs.logger.Error("Error new review place", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
-		ctx.Abort()
-
-		return
-	}
-
-	ctx.JSON(http.StatusOK, models.NewResponse(reviewPlace))
-	ctx.Abort()
-}
-
-// NewPlace
-// @Summary Добавить новое место
-// @Description Создает новое место.
-// @ID create-place
-// @Accept json
-// @Produce json
-// @Param name uri string true "Название места"
-// @Param description uri string true "Описание места"
-// @Param carousel uri []string true "Список изображений для карусели"
-// @Param address_lng uri float64 true "Долгота местоположения"
-// @Param address_lat uri float64 true "Широта местоположения"
-// @Success 200 {object} models.Response
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 500 {object} models.ErrorResponse
-// @Router /places [post]
 func (hs *handlerService) NewPlace(ctx *gin.Context) {
 	var params struct {
 		Name        string   `uri:"name" binding:"required"`
@@ -173,7 +64,7 @@ func (hs *handlerService) NewPlace(ctx *gin.Context) {
 
 func (hs *handlerService) EditPlace(ctx *gin.Context) {
 	var params struct {
-		PlaceID string `uri:"placeID" binding:"required,uuid"`
+		PlaceID string `uri:"placeId" binding:"required,uuid"`
 	}
 	placeID, _ := uuid.Parse(params.PlaceID)
 
@@ -206,7 +97,7 @@ func (hs *handlerService) EditPlace(ctx *gin.Context) {
 
 func (hs *handlerService) GetPlace(ctx *gin.Context) {
 	var params struct {
-		PlaceID string `uri:"placeID" binding:"required,uuid"`
+		PlaceID string `uri:"placeId" binding:"required,uuid"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
@@ -244,5 +135,75 @@ func (hs *handlerService) GetAllPlaces(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, models.NewResponse(places))
+	ctx.Abort()
+}
+
+func (hs *handlerService) NewReviewPlace(ctx *gin.Context) {
+	vkParams := hs.GetVKParams(ctx)
+
+	var params struct {
+		PlaceID    string  `uri:"placeID" binding:"required,uuid"`
+		ReviewText string  `uri:"review_text" binding:"required"`
+		Stars      float64 `uri:"stars" binding:"required"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+
+	user, err := hs.pg.GetUserByVkID(ctx, int64(vkParams.VkUserID))
+	if err != nil {
+		hs.logger.Error("Error get user", zap.Error(err))
+
+		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		ctx.Abort()
+
+		return
+	}
+
+	placeID, _ := uuid.Parse(params.PlaceID)
+	reviewPlace, err := hs.pg.NewReviewPlace(ctx, models.ReviewPlace{
+		OwnerID:    user.ID,
+		PlaceID:    placeID,
+		ReviewText: params.ReviewText,
+		Stars:      params.Stars,
+		CreatedAt:  time.Now(),
+	})
+
+	if err != nil {
+		hs.logger.Error("Error new review place", zap.Error(err))
+
+		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		ctx.Abort()
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, models.NewResponse(reviewPlace))
+	ctx.Abort()
+}
+
+func (hs *handlerService) GetReviewsPlace(ctx *gin.Context) {
+	var params struct {
+		PlaceID string `uri:"placeId" binding:"required,uuid"`
+	}
+
+	placeID, _ := uuid.Parse(params.PlaceID)
+	reviews, err := hs.pg.GetReviewsPlace(ctx, placeID)
+
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		hs.logger.Debug("Error get reviews", zap.Error(err))
+
+		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		ctx.Abort()
+
+		return
+	}
+
+	hs.logger.Debug("Success get reviews", zap.Any("Reviews", reviews))
+	ctx.JSON(http.StatusOK, models.NewResponse(reviews))
 	ctx.Abort()
 }
