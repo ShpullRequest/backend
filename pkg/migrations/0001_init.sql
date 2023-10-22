@@ -5,8 +5,8 @@
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
         vk_id BIGINT NOT NULL,
         is_admin BOOL NOT NULL DEFAULT FALSE,
-        passed_app_onboarding BOOL NOT NULL DEFAULT FALSE,
-        passed_prisma_onboarding BOOL NOT NULL DEFAULT FALSE
+        passed_onboarding BOOL NOT NULL DEFAULT FALSE,
+        selected_geo text
     );
     CREATE UNIQUE INDEX idx_unique_users_vkid ON users (vk_id);
 
@@ -34,9 +34,8 @@
         company_id UUID,
         name VARCHAR(100) NOT NULL,
         description TEXT NOT NULL,
-        address_text TEXT NOT NULL,
-        address_lng DOUBLE PRECISION NOT NULL,
-        address_lat DOUBLE PRECISION NOT NULL,
+        places TEXT[],
+        events TEXT[],
         is_deleted BOOL NOT NULL
     );
     CREATE INDEX idx_routes_company_id ON routes (company_id);
@@ -82,6 +81,7 @@
     );
     CREATE INDEX idx_reviews_places_owner ON reviews_places (owner_id);
     CREATE INDEX idx_reviews_places_route ON reviews_places (place_id);
+    ALTER TABLE reviews_places ADD CONSTRAINT unique_owner_id_place_id UNIQUE (owner_id, place_id);
 
     CREATE TABLE IF NOT EXISTS reviews_routes (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -94,6 +94,7 @@
     );
     CREATE INDEX idx_reviews_routes_owner ON reviews_routes (owner_id);
     CREATE INDEX idx_reviews_routes_route ON reviews_routes (route_id);
+    ALTER TABLE reviews_routes ADD CONSTRAINT unique_owner_id_route_id UNIQUE (owner_id, route_id);
 
     CREATE TABLE IF NOT EXISTS reviews_events (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -106,29 +107,10 @@
     );
     CREATE INDEX idx_reviews_events_owner ON reviews_events (owner_id);
     CREATE INDEX idx_reviews_events_route ON reviews_events (event_id);
-    ALTER TABLE reviews_events ADD CONSTRAINT unique_owner_id_route_id UNIQUE (owner_id, event_id);
-
-
--- Фильтры
-    CREATE TABLE IF NOT EXISTS events_filters (
-        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        name VARCHAR(100)
-    );
-
-    CREATE TABLE IF NOT EXISTS map_filters (
-        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        name VARCHAR(100)
-    );
+    ALTER TABLE reviews_events ADD CONSTRAINT unique_owner_id_event_id UNIQUE (owner_id, event_id);
 
 
 -- Связи между таблицами
-    CREATE TABLE IF NOT EXISTS users_map_filters_rel (
-        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        user_id UUID,
-        filter_id UUID
-    );
-    CREATE INDEX idx_users_map_filters_rel_user_filter ON users_map_filters_rel (user_id, filter_id);
-
     CREATE TABLE IF NOT EXISTS users_privacy_rel (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
         user_id UUID,
@@ -161,12 +143,5 @@
         operation BOOL NOT NULL
     );
     CREATE INDEX idx_users_coins_rel_user ON users_coins_rel (user_id);
-
-    CREATE TABLE IF NOT EXISTS events_filters_rel (
-        id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-        event_id UUID NOT NULL,
-        filter_id UUID NOT NULL
-    );
-    CREATE INDEX idx_events_filters_rel_event_filter ON events_filters_rel (event_id, filter_id);
 
 -- +goose Down

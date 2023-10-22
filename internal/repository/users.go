@@ -9,10 +9,10 @@ import (
 func (p *Pg) NewUser(ctx context.Context, user models.User) (*models.User, error) {
 	id, err := p.db.ExecContextWithReturnID(
 		ctx,
-		"INSERT INTO users (vk_id, passed_app_onboarding, passed_prisma_onboarding) VALUES ($1, $2, $3)",
+		"INSERT INTO users (vk_id, passed_onboarding, selected_geo) VALUES ($1, $2, $3)",
 		user.VkID,
-		user.PassedAppOnboarding,
-		user.PassedPrismaOnboarding,
+		user.PassedOnboarding,
+		user.SelectedGeo,
 	)
 	if err != nil {
 		return nil, err
@@ -25,9 +25,9 @@ func (p *Pg) NewUser(ctx context.Context, user models.User) (*models.User, error
 func (p *Pg) SaveUser(ctx context.Context, user *models.User) error {
 	_, err := p.db.ExecContext(
 		ctx,
-		"UPDATE users SET passed_app_onboarding = $1, passed_prisma_onboarding = $2 WHERE id = $3",
-		user.PassedAppOnboarding,
-		user.PassedPrismaOnboarding,
+		"UPDATE users SET passed_onboarding = $1, selected_geo = $2 WHERE id = $3",
+		user.PassedOnboarding,
+		user.SelectedGeo,
 		user.ID,
 	)
 

@@ -3,10 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"errors"
-	"github.com/ShpullRequest/backend/internal/config"
 	"github.com/ShpullRequest/backend/internal/errs"
 	"github.com/ShpullRequest/backend/internal/models"
-	"github.com/ShpullRequest/backend/pkg/vk/maps"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgerrcode"
@@ -16,18 +14,13 @@ import (
 	"time"
 )
 
-func (hs *handlerService) NewEvent(ctx *gin.Context) {
+func (hs *handlerService) NewRoute(ctx *gin.Context) {
 	var params struct {
-		// Нельзя парсить сразу в uuid.UUID, потому что это не поддерживает нормально gin
 		CompanyID   string   `json:"company_id" binding:"omitempty,uuid"`
-		Name        string   `json:"name" binding:"required,min=6"`
-		Description string   `json:"description" binding:"required,min=10"`
-		Carousel    []string `json:"carousel" binding:"required"`
-		Tags        []string `json:"tags" binding:"required"`
-		Icon        string   `json:"icon" binding:"required,url"`
-		StartTime   string   `json:"start_time" binding:"required"`
-		AddressLng  float64  `json:"address_lng" binding:"required,longitude"`
-		AddressLat  float64  `json:"address_lat" binding:"required,latitude"`
+		Name        string   `json:"name" binding:"min=6"`
+		Description string   `json:"description" binding:"min=10"`
+		Places      []string `json:"places,omitempty"`
+		Events      []string `json:"events,omitempty"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
@@ -36,15 +29,6 @@ func (hs *handlerService) NewEvent(ctx *gin.Context) {
 
 		return
 	}
-
-	startTime, err := time.Parse("2006-01-02T15:04:05Z07:00", params.StartTime)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, models.NewErrorResponse(errs.NewBadRequest("Field validation for \"StartTime\" failed on the 'timezone=2006-01-02T15:04:05Z07:00' tag.")))
-		ctx.Abort()
-
-		return
-	}
-
 	vkParams := hs.GetVKParams(ctx)
 
 	user, err := hs.pg.GetUserByVkID(ctx, int64(vkParams.VkUserID))
@@ -86,30 +70,15 @@ func (hs *handlerService) NewEvent(ctx *gin.Context) {
 		companyID = &company.ID
 	}
 
-	address, err := maps.New(config.Config).GetAddressByGeo(params.AddressLng, params.AddressLat)
-	if err != nil {
-		hs.logger.Error("Error get company by id", zap.Error(err))
-
-		ctx.JSON(http.StatusBadGateway, models.NewErrorResponse(errs.NewBadGateway("Internal server error on vk maps")))
-		ctx.Abort()
-
-		return
-	}
-
-	event, err := hs.pg.NewEvent(ctx, models.Event{
+	route, err := hs.pg.NewRoute(ctx, models.Route{
 		CompanyID:   companyID,
 		Name:        params.Name,
 		Description: params.Description,
-		Carousel:    params.Carousel,
-		Tags:        params.Tags,
-		Icon:        params.Icon,
-		StartTime:   startTime,
-		AddressText: address,
-		AddressLng:  params.AddressLng,
-		AddressLat:  params.AddressLat,
+		Places:      params.Places,
+		Events:      params.Events,
 	})
 	if err != nil {
-		hs.logger.Error("Error new event", zap.Error(err))
+		hs.logger.Error("Error new route", zap.Error(err))
 
 		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
 		ctx.Abort()
@@ -117,45 +86,13 @@ func (hs *handlerService) NewEvent(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.NewResponse(event))
+	ctx.JSON(http.StatusOK, models.NewResponse(route))
 	ctx.Abort()
 }
 
-func (hs *handlerService) GetEvent(ctx *gin.Context) {
-	var params struct {
-		EventID string `uri:"eventId" binding:"required,uuid"`
-	}
-
-	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
-		ctx.JSON(statusCode, response)
-		ctx.Abort()
-
-		return
-	}
-
-	eventID, _ := uuid.Parse(params.EventID)
-	event, err := hs.pg.GetEvent(ctx, eventID)
-
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		hs.logger.Error("Error get event", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
-		ctx.Abort()
-
-		return
-	}
-
-	if !event.IsNil() {
-		ctx.JSON(http.StatusOK, models.NewResponse(event))
-	} else {
-		ctx.JSON(http.StatusOK, models.NewResponse(nil))
-	}
-	ctx.Abort()
-}
-
-func (hs *handlerService) EditEvent(ctx *gin.Context) {
+func (hs *handlerService) EditRoute(ctx *gin.Context) {
 	var paramsURI struct {
-		EventID string `uri:"eventId" binding:"required,uuid"`
+		RouteID string `uri:"routeId" binding:"required,uuid"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &paramsURI); err != nil {
@@ -168,12 +105,8 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 	var params struct {
 		Name        string   `json:"name" binding:"omitempty,min=6"`
 		Description string   `json:"description" binding:"omitempty,min=10"`
-		Carousel    []string `json:"carousel" binding:"omitempty"`
-		Tags        []string `json:"tags" binding:"required"`
-		Icon        string   `json:"icon" binding:"omitempty,url"`
-		StartTime   string   `json:"start_time" binding:"omitempty"`
-		AddressLng  float64  `json:"address_lng" binding:"omitempty,longitude"`
-		AddressLat  float64  `json:"address_lat" binding:"omitempty,latitude"`
+		Places      []string `json:"places,omitempty"`
+		Events      []string `json:"events,omitempty"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
@@ -184,12 +117,12 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 	}
 	vkParams := hs.GetVKParams(ctx)
 
-	eventID, _ := uuid.Parse(paramsURI.EventID)
-	event, err := hs.pg.GetEvent(ctx, eventID)
+	routeID, _ := uuid.Parse(paramsURI.RouteID)
+	route, err := hs.pg.GetRoute(ctx, routeID)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			ctx.JSON(http.StatusNotFound, models.NewErrorResponse(errs.NewNotFound("Event not found")))
+			ctx.JSON(http.StatusNotFound, models.NewErrorResponse(errs.NewNotFound("Route not found")))
 		} else {
 			hs.logger.Error("Error get event", zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
@@ -209,7 +142,7 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 		return
 	}
 
-	if event.CompanyID == nil {
+	if route.CompanyID == nil {
 		if !user.IsAdmin {
 			ctx.JSON(http.StatusForbidden, models.NewErrorResponse(errs.NewForbidden("You don't have access to this method")))
 			ctx.Abort()
@@ -217,7 +150,7 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 			return
 		}
 	} else {
-		company, err := hs.pg.GetCompanyByID(ctx, *event.CompanyID)
+		company, err := hs.pg.GetCompanyByID(ctx, *route.CompanyID)
 		if err != nil {
 			hs.logger.Error("Error get company by id", zap.Error(err))
 
@@ -236,48 +169,20 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 	}
 
 	if params.Name != "" {
-		event.Name = params.Name
+		route.Name = params.Name
 	}
 	if params.Description != "" {
-		event.Description = params.Description
+		route.Description = params.Description
 	}
-	if len(params.Carousel) > 0 {
-		event.Carousel = params.Carousel
+	if len(params.Places) > 0 {
+		route.Places = params.Places
 	}
-	if len(params.Tags) > 0 {
-		event.Tags = params.Tags
-	}
-	if params.Icon != "" {
-		event.Icon = params.Icon
-	}
-	if params.StartTime != "" {
-		startTime, err := time.Parse("2006-01-02T15:04:05Z07:00", params.StartTime)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, models.NewErrorResponse(errs.NewBadRequest("Field validation for \"StartTime\" failed on the 'timezone=2006-01-02T15:04:05Z07:00' tag.")))
-			ctx.Abort()
-
-			return
-		}
-		event.StartTime = startTime
-	}
-	if params.AddressLng != 0 && params.AddressLat != 0 {
-		address, err := maps.New(config.Config).GetAddressByGeo(params.AddressLng, params.AddressLat)
-		if err != nil {
-			hs.logger.Error("Error get company by id", zap.Error(err))
-
-			ctx.JSON(http.StatusBadGateway, models.NewErrorResponse(errs.NewBadGateway("Internal server error on vk maps")))
-			ctx.Abort()
-
-			return
-		}
-
-		event.AddressText = address
-		event.AddressLng = params.AddressLng
-		event.AddressLat = params.AddressLat
+	if len(params.Events) > 0 {
+		route.Events = params.Events
 	}
 
-	if err = hs.pg.SaveEvent(ctx, event); err != nil {
-		hs.logger.Error("Error save event", zap.Error(err))
+	if err = hs.pg.SaveRoute(ctx, route); err != nil {
+		hs.logger.Error("Error save route", zap.Error(err))
 
 		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
 		ctx.Abort()
@@ -285,11 +190,65 @@ func (hs *handlerService) EditEvent(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.NewResponse(event))
+	ctx.JSON(http.StatusOK, models.NewResponse(route))
 	ctx.Abort()
 }
 
-func (hs *handlerService) GetCompanyEvents(ctx *gin.Context) {
+func (hs *handlerService) GetRoute(ctx *gin.Context) {
+	var params struct {
+		RouteID string `uri:"routeId" binding:"required,uuid"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+
+	routeID, _ := uuid.Parse(params.RouteID)
+	route, err := hs.pg.GetRoute(ctx, routeID)
+
+	if err != nil {
+		hs.logger.Error("Error get route", zap.Error(err))
+
+		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		ctx.Abort()
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, models.NewResponse(route))
+	ctx.Abort()
+}
+
+func (hs *handlerService) SearchRoutes(ctx *gin.Context) {
+	var params struct {
+		Query string `uri:"query" binding:"required,min=2"`
+	}
+
+	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
+		ctx.JSON(statusCode, response)
+		ctx.Abort()
+
+		return
+	}
+
+	routes, err := hs.pg.SearchRoutes(ctx, params.Query)
+	if err != nil {
+		hs.logger.Error("Error search routes", zap.Error(err))
+
+		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
+		ctx.Abort()
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, models.NewResponse(routes))
+	ctx.Abort()
+}
+
+func (hs *handlerService) GetCompanyRoutes(ctx *gin.Context) {
 	var params struct {
 		CompanyID string `uri:"companyId" binding:"required,uuid"`
 	}
@@ -302,10 +261,10 @@ func (hs *handlerService) GetCompanyEvents(ctx *gin.Context) {
 	}
 
 	companyID, _ := uuid.Parse(params.CompanyID)
-	events, err := hs.pg.GetAllEventsByCompanyID(ctx, companyID)
+	routes, err := hs.pg.GetAllRoutesByCompanyID(ctx, companyID)
 
 	if err != nil {
-		hs.logger.Error("Error get all events by company id", zap.Error(err))
+		hs.logger.Error("Error get all routes by company id", zap.Error(err))
 
 		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
 		ctx.Abort()
@@ -313,25 +272,14 @@ func (hs *handlerService) GetCompanyEvents(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.NewResponse(events))
+	ctx.JSON(http.StatusOK, models.NewResponse(routes))
 	ctx.Abort()
 }
 
-func (hs *handlerService) SearchEvents(ctx *gin.Context) {
-	var params struct {
-		Query string `uri:"query" binding:"required,min=2"`
-	}
-
-	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
-		ctx.JSON(statusCode, response)
-		ctx.Abort()
-
-		return
-	}
-
-	events, err := hs.pg.SearchEvents(ctx, params.Query)
+func (hs *handlerService) GetAllRoutes(ctx *gin.Context) {
+	routes, err := hs.pg.GetAllRoutes(ctx)
 	if err != nil {
-		hs.logger.Error("Error search events", zap.Error(err))
+		hs.logger.Error("Error get all routes", zap.Error(err))
 
 		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
 		ctx.Abort()
@@ -339,28 +287,13 @@ func (hs *handlerService) SearchEvents(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.NewResponse(events))
+	ctx.JSON(http.StatusOK, models.NewResponse(routes))
 	ctx.Abort()
 }
 
-func (hs *handlerService) GetAllEvents(ctx *gin.Context) {
-	events, err := hs.pg.GetAllEvents(ctx)
-	if err != nil {
-		hs.logger.Error("Error get all events", zap.Error(err))
-
-		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
-		ctx.Abort()
-
-		return
-	}
-
-	ctx.JSON(http.StatusOK, models.NewResponse(events))
-	ctx.Abort()
-}
-
-func (hs *handlerService) NewReviewEvent(ctx *gin.Context) {
+func (hs *handlerService) NewReviewRoute(ctx *gin.Context) {
 	var paramsURI struct {
-		EventID string `uri:"eventId" binding:"required,uuid"`
+		RouteID string `uri:"routeId" binding:"required,uuid"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &paramsURI); err != nil {
@@ -402,10 +335,10 @@ func (hs *handlerService) NewReviewEvent(ctx *gin.Context) {
 		params.Stars = math.Round(params.Stars)
 	}
 
-	eventID, _ := uuid.Parse(paramsURI.EventID)
-	reviewEvent, err := hs.pg.NewReviewEvent(ctx, models.ReviewEvent{
+	routeID, _ := uuid.Parse(paramsURI.RouteID)
+	reviewRoute, err := hs.pg.NewReviewRoute(ctx, models.ReviewRoute{
 		OwnerID:    user.ID,
-		EventID:    eventID,
+		RouteID:    routeID,
 		ReviewText: params.ReviewText,
 		Stars:      params.Stars,
 		CreatedAt:  time.Now(),
@@ -413,7 +346,7 @@ func (hs *handlerService) NewReviewEvent(ctx *gin.Context) {
 
 	if err != nil {
 		if hs.pg.IsError(pgerrcode.IsIntegrityConstraintViolation, err) {
-			ctx.JSON(http.StatusConflict, models.NewErrorResponse(errs.NewConflict("You have already added a review to this event")))
+			ctx.JSON(http.StatusConflict, models.NewErrorResponse(errs.NewConflict("You have already added a review to this route")))
 		} else {
 			hs.logger.Error("Error new review event", zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
@@ -423,13 +356,13 @@ func (hs *handlerService) NewReviewEvent(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.NewResponse(reviewEvent))
+	ctx.JSON(http.StatusOK, models.NewResponse(reviewRoute))
 	ctx.Abort()
 }
 
-func (hs *handlerService) EditReviewsEvent(ctx *gin.Context) {
+func (hs *handlerService) EditReviewRoute(ctx *gin.Context) {
 	var paramsURI struct {
-		EventID string `uri:"eventId" binding:"required,uuid"`
+		RouteID string `uri:"routeId" binding:"required,uuid"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &paramsURI); err != nil {
@@ -462,12 +395,12 @@ func (hs *handlerService) EditReviewsEvent(ctx *gin.Context) {
 		return
 	}
 
-	eventID, _ := uuid.Parse(paramsURI.EventID)
-	reviewEvent, err := hs.pg.GetReviewEvent(ctx, user.ID, eventID)
+	routeID, _ := uuid.Parse(paramsURI.RouteID)
+	reviewRoute, err := hs.pg.GetReviewRoute(ctx, user.ID, routeID)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			ctx.JSON(http.StatusNotFound, models.NewErrorResponse(errs.NewNotFound("Review event not found")))
+			ctx.JSON(http.StatusNotFound, models.NewErrorResponse(errs.NewNotFound("Review route not found")))
 		} else {
 			hs.logger.Error("Error get event", zap.Error(err))
 			ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
@@ -485,7 +418,7 @@ func (hs *handlerService) EditReviewsEvent(ctx *gin.Context) {
 			return
 		}
 
-		reviewEvent.ReviewText = params.ReviewText
+		reviewRoute.ReviewText = params.ReviewText
 	}
 	if params.Stars != 0 {
 		if params.Stars < 1 || params.Stars > 5 {
@@ -494,12 +427,12 @@ func (hs *handlerService) EditReviewsEvent(ctx *gin.Context) {
 
 			return
 		} else {
-			reviewEvent.Stars = math.Round(params.Stars)
+			reviewRoute.Stars = math.Round(params.Stars)
 		}
 	}
 
-	if err = hs.pg.SaveReviewEvent(ctx, reviewEvent); err != nil {
-		hs.logger.Debug("Error save review event", zap.Error(err))
+	if err = hs.pg.SaveReviewRoute(ctx, reviewRoute); err != nil {
+		hs.logger.Debug("Error save review route", zap.Error(err))
 
 		ctx.JSON(http.StatusInternalServerError, models.NewErrorResponse(errs.NewInternalServer("Internal server error")))
 		ctx.Abort()
@@ -507,13 +440,13 @@ func (hs *handlerService) EditReviewsEvent(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, models.NewResponse(reviewEvent))
+	ctx.JSON(http.StatusOK, models.NewResponse(reviewRoute))
 	ctx.Abort()
 }
 
-func (hs *handlerService) GetReviewsEvent(ctx *gin.Context) {
+func (hs *handlerService) GetReviewsRoutes(ctx *gin.Context) {
 	var params struct {
-		EventID string `uri:"eventId" binding:"required,uuid"`
+		RouteID string `uri:"routeId" binding:"required,uuid"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindURI(ctx, &params); err != nil {
@@ -523,8 +456,8 @@ func (hs *handlerService) GetReviewsEvent(ctx *gin.Context) {
 		return
 	}
 
-	eventID, _ := uuid.Parse(params.EventID)
-	reviews, err := hs.pg.GetReviewsEvent(ctx, eventID)
+	routeID, _ := uuid.Parse(params.RouteID)
+	reviews, err := hs.pg.GetReviewsEvent(ctx, routeID)
 
 	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		hs.logger.Debug("Error get reviews", zap.Error(err))
