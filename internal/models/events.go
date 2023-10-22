@@ -22,17 +22,6 @@ type (
 		IsDeleted   bool           `json:"-" db:"is_deleted"`
 	}
 
-	EventsFilter struct {
-		ID   uuid.UUID `json:"_id" db:"id"`
-		Name string    `json:"name" db:"name"`
-	}
-
-	EventsFiltersRel struct {
-		ID       uuid.UUID `json:"_id" db:"id"`
-		EventID  uuid.UUID `json:"event_id" db:"event_id"`
-		FilterID uuid.UUID `json:"filter_id" db:"filter_id"`
-	}
-
 	ReviewEvent struct {
 		ID         uuid.UUID `json:"_id" db:"id"`
 		OwnerID    uuid.UUID `json:"owner_id" db:"owner_id"`

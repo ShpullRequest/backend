@@ -2,19 +2,29 @@ package models
 
 import (
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"time"
 )
 
 type (
 	Route struct {
-		ID          uuid.UUID `json:"_id" db:"id"`
-		CompanyID   uuid.UUID `json:"company_id,omitempty" db:"company_id"`
-		Name        string    `json:"name" db:"name"`
-		Description string    `json:"description" db:"description"`
-		AddressText string    `json:"address_text" db:"address_text"`
-		AddressLng  float64   `json:"address_lng" db:"address_lng"`
-		AddressLat  float64   `json:"address_lat" db:"address_lat"`
-		IsDeleted   bool      `json:"is_deleted" db:"is_deleted"`
+		ID          uuid.UUID      `json:"_id" db:"id"`
+		CompanyID   *uuid.UUID     `json:"company_id,omitempty" db:"company_id"`
+		Name        string         `json:"name" db:"name"`
+		Description string         `json:"description" db:"description"`
+		Places      pq.StringArray `json:"-" db:"places"`
+		Events      pq.StringArray `json:"-" db:"events"`
+		IsDeleted   bool           `json:"-" db:"is_deleted"`
+	}
+
+	RouteGeo struct {
+		Type   string      `json:"type"`
+		Object interface{} `json:"object"`
+	}
+
+	RouteWithGeo struct {
+		Route
+		Geo []RouteGeo `json:"geo"`
 	}
 
 	ReviewRoute struct {

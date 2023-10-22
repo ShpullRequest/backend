@@ -3,8 +3,10 @@ package handlers
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"github.com/ShpullRequest/backend/internal/errs"
 	"github.com/ShpullRequest/backend/internal/models"
+	"github.com/ShpullRequest/backend/pkg/ip"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -28,7 +30,8 @@ func (hs *handlerService) GetMe(ctx *gin.Context) {
 		}
 
 		user, err = hs.pg.NewUser(ctx, models.User{
-			VkID: int64(vkParams.VkUserID),
+			VkID:        int64(vkParams.VkUserID),
+			SelectedGeo: "",
 		})
 		if err != nil {
 			hs.logger.Error("Error create user", zap.Error(err))
@@ -41,8 +44,19 @@ func (hs *handlerService) GetMe(ctx *gin.Context) {
 		hs.logger.Debug("Success create user")
 	}
 
+	userGeo, err := ip.GetGeoByIP(ctx.ClientIP())
+	if err != nil {
+		hs.logger.Error("Error get user geo", zap.Error(err))
+	}
+
 	hs.logger.Debug("Success get me", zap.Any("User", user))
-	ctx.JSON(http.StatusOK, models.NewResponse(user))
+	ctx.JSON(http.StatusOK, models.NewResponse(struct {
+		*models.User
+		CurrentGeo string `json:"current_geo"`
+	}{
+		User:       user,
+		CurrentGeo: userGeo,
+	}))
 	ctx.Abort()
 }
 
@@ -79,8 +93,9 @@ func (hs *handlerService) GetUserByVkID(ctx *gin.Context) {
 
 func (hs *handlerService) EditUser(ctx *gin.Context) {
 	var params struct {
-		PassedAppOnboarding    bool `json:"passed_app_onboarding,omitempty" binding:"required_without=PassedPrismaOnboarding"`
-		PassedPrismaOnboarding bool `json:"passed_prisma_onboarding,omitempty" binding:"required_without=PassedAppOnboarding"`
+		PassedOnboarding bool    `json:"passed_onboarding,omitempty"`
+		SelectedGeoLat   float64 `json:"selected_geo_lat" binding:"latitude"`
+		SelectedGeoLot   float64 `json:"selected_geo_lot" binding:"longitude"`
 	}
 
 	if response, statusCode, err := hs.validateAndShouldBindJSON(ctx, &params); err != nil {
@@ -103,12 +118,11 @@ func (hs *handlerService) EditUser(ctx *gin.Context) {
 		return
 	}
 
-	if !user.PassedAppOnboarding && params.PassedAppOnboarding {
-		user.PassedAppOnboarding = true
+	if !user.PassedOnboarding && params.PassedOnboarding {
+		user.PassedOnboarding = true
 	}
-
-	if !user.PassedPrismaOnboarding && params.PassedPrismaOnboarding {
-		user.PassedPrismaOnboarding = true
+	if params.SelectedGeoLat != 0 && params.SelectedGeoLot != 0 {
+		user.SelectedGeo = fmt.Sprintf("%f, %f", params.SelectedGeoLat, params.SelectedGeoLot)
 	}
 
 	if err = hs.pg.SaveUser(ctx, user); err != nil {

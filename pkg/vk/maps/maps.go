@@ -44,7 +44,7 @@ func (m *vkMaps) GetAddressByGeo(lng, lat float64) (string, error) {
 	params.Set("api_key", m.apiKey)
 	params.Set("q", fmt.Sprintf("%f,%f", lng, lat))
 
-	result, err := m.client.R().
+	response, err := m.client.R().
 		SetQueryParamsFromValues(params).
 		SetResult(&SearchResponse{}).
 		Get("search")
@@ -52,7 +52,7 @@ func (m *vkMaps) GetAddressByGeo(lng, lat float64) (string, error) {
 		return "", err
 	}
 
-	searchResult := result.Result().(*SearchResponse)
+	searchResult := response.Result().(*SearchResponse)
 	if len(searchResult.Results) < 1 {
 		return "", errors.New("no address")
 	}
